@@ -54,7 +54,7 @@ export default function ProviderRegistration({ onSuccess, onCancel }: ProviderRe
       return;
     }
     if (!ktmImage) {
-      setErr('Mohon unggah Kartu Tanda Mahasiswa (KTM) aktif Anda untuk verifikasi keselamatan!');
+      setErr('Mohon unggah Kartu Tanda Mahasiswa (KTM) aktif Anda untuk verifikasi!');
       return;
     }
 
@@ -83,51 +83,52 @@ export default function ProviderRegistration({ onSuccess, onCancel }: ProviderRe
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm max-w-lg mx-auto space-y-6">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-card max-w-lg mx-auto space-y-4 sm:space-y-6 animate-slide-up">
       <div className="text-center space-y-1.5">
         <div className="w-12 h-12 bg-teal-light/20 text-teal rounded-full flex items-center justify-center mx-auto mb-2">
-          <Award className="w-7 h-7" />
+          <Award className="w-6 h-6 sm:w-7 sm:h-7" />
         </div>
-        <h2 className="text-lg font-extrabold text-[#000c24]">Pendaftaran Kurir Kampus</h2>
-        <p className="text-xs text-slate-500">
-          Ajukan verifikasi kurir untuk menerima tugas pengantaran di lingkungan UMP.
+        <h2 className="text-base sm:text-lg font-extrabold text-[#000c24]">Pendaftaran Kurir Kampus</h2>
+        <p className="text-[11px] sm:text-xs text-slate-500">
+          Ajukan verifikasi untuk menerima tugas pengantaran di lingkungan UMP.
         </p>
       </div>
 
-      <div className="p-3 bg-amber-50 rounded-lg text-[11px] text-amber-800 flex items-start gap-2 border border-amber-100">
+      <div className="p-3 bg-amber-50 rounded-lg text-[11px] sm:text-xs text-amber-800 flex items-start gap-2 border border-amber-100">
         <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
         <p>
-          <strong>Syarat Verifikasi:</strong> Wajib mahasiswa aktif di lingkungan UMP Purwokerto. KTM digunakan untuk
-          validasi identitas dan keamanan transaksi.
+          <strong>Syarat:</strong> Mahasiswa aktif UMP dengan KTM yang masih berlaku.
         </p>
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4 text-left">
         {/* NIM */}
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-700 block uppercase">NIM (Nomor Induk Mahasiswa)</label>
+        <div className="space-y-1.5">
+          <label className="text-[11px] sm:text-xs font-bold text-slate-700 block uppercase tracking-wide">NIM</label>
           <input
             type="text"
             value={nim}
             onChange={(e) => setNim(e.target.value)}
             placeholder="Contoh: 2103040012"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal/20 focus:border-teal outline-none transition-all"
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-teal/20 focus:border-teal outline-none transition-all bg-slate-50"
             required
             id="reg-nim"
           />
         </div>
 
         {/* Faculty */}
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-700 block uppercase">Fakultas Asal</label>
+        <div className="space-y-1.5">
+          <label className="text-[11px] sm:text-xs font-bold text-slate-700 block uppercase tracking-wide">
+            Fakultas
+          </label>
           <select
             value={faculty}
             onChange={(e) => setFaculty(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 bg-white rounded-lg text-sm focus:ring-2 focus:ring-teal/20 focus:border-teal outline-none transition-all"
+            className="w-full px-3 py-2.5 border border-slate-200 bg-white rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-teal/20 focus:border-teal outline-none transition-all cursor-pointer"
             required
             id="reg-faculty"
           >
-            <option value="">-- Pilih Fakultas --</option>
+            <option value="">-- Pilih --</option>
             {faculties.map((fac) => (
               <option key={fac} value={fac}>
                 {fac}
@@ -138,44 +139,46 @@ export default function ProviderRegistration({ onSuccess, onCancel }: ProviderRe
 
         {/* KTM Upload Input */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-700 block uppercase">Unggah KTM Mahasiswa Aktif</label>
+          <label className="text-[11px] sm:text-xs font-bold text-slate-700 block uppercase tracking-wide">
+            Unggah KTM
+          </label>
 
-          <div className="border-2 border-dashed border-slate-200 hover:border-teal/40 transition-colors rounded-xl p-6 text-center bg-slate-50 relative">
+          <div className="border-2 border-dashed border-slate-200 hover:border-teal/40 transition-colors rounded-xl p-4 sm:p-6 text-center bg-slate-50 relative">
             {uploading ? (
               <div className="py-4 flex flex-col items-center justify-center space-y-2">
                 <Loader className="w-6 h-6 text-teal animate-spin" />
-                <span className="text-xs font-semibold text-slate-600">Mengupload KTM...</span>
+                <span className="text-xs font-semibold text-slate-600">Mengupload...</span>
               </div>
             ) : ktmImage ? (
               <div className="space-y-3">
                 <img
                   src={ktmImage}
                   alt="KTM Preview"
-                  className="w-full max-h-[160px] object-cover rounded-lg border border-slate-200 mx-auto"
+                  className="w-full max-h-[120px] sm:max-h-[160px] object-cover rounded-lg border border-slate-200 mx-auto"
                 />
                 <div className="flex items-center justify-center gap-1.5 text-xs text-[#119b50] font-bold">
                   <CheckCircle className="w-4 h-4" />
-                  <span>KTM Terunggah Berhasil</span>
+                  <span>Terunggah</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setKtmImage(null)}
-                  className="text-[10px] text-rose-500 hover:underline cursor-pointer"
+                  className="text-[10px] sm:text-xs text-rose-500 hover:underline cursor-pointer"
                 >
                   Hapus & Ganti
                 </button>
               </div>
             ) : (
               <div className="space-y-2">
-                <UploadCloud className="w-10 h-10 text-slate-400 mx-auto" />
+                <UploadCloud className="w-8 h-8 sm:w-10 sm:h-10 text-slate-400 mx-auto" />
                 <div>
                   <label
                     htmlFor="file-upload"
                     className="font-bold text-teal hover:text-teal-dark cursor-pointer text-xs underline"
                   >
-                    Klik untuk memilih file
+                    Pilih File
                   </label>
-                  <p className="text-[10px] text-slate-400 mt-1">Unggah foto KTM format JPG atau PNG maksimal 2MB</p>
+                  <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1">JPG/PNG maks 2MB</p>
                 </div>
                 <input
                   id="file-upload"
@@ -194,19 +197,29 @@ export default function ProviderRegistration({ onSuccess, onCancel }: ProviderRe
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-teal hover:bg-teal-dark py-3 text-white font-bold rounded-lg shadow-sm active:scale-95 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-teal to-teal-dark hover:from-teal-dark hover:to-teal py-3 text-white font-bold rounded-xl shadow-md active:scale-[0.98] transition-all text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           id="btn-register-provider"
         >
-          {submitting ? 'Mengirim berkas...' : 'Kirim Berkas untuk Verifikasi Admin'}
+          {submitting ? (
+            <>
+              <Loader className="w-4 h-4 animate-spin" />
+              <span>Mengirim...</span>
+            </>
+          ) : (
+            <>
+              <Award className="w-4 h-4" />
+              <span>Daftar Kurir</span>
+            </>
+          )}
         </button>
 
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="w-full bg-slate-100 hover:bg-slate-200 py-3 text-slate-700 font-bold rounded-lg active:scale-95 transition-all text-sm cursor-pointer"
+            className="w-full bg-slate-100 hover:bg-slate-200 py-3 text-slate-700 font-bold rounded-xl active:scale-[0.98] transition-all text-sm cursor-pointer"
           >
-            Kembali ke Dashboard Mahasiswa
+            Kembali ke Dashboard
           </button>
         )}
       </form>

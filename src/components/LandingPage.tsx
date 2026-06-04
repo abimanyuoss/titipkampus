@@ -167,18 +167,20 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+      {/* Navigation - Mobile optimized */}
+      <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-sm z-50 safe-area-top">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-navy to-slate-800 rounded-xl flex items-center justify-center shadow-lg">
-                <Globe className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-navy to-slate-800 rounded-xl sm:rounded-xl flex items-center justify-center shadow-lg">
+                <Globe className="w-4.5 h-4.5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
               <div>
-                <span className="font-black text-lg lg:text-xl text-navy-dark tracking-tight">TitipKampus</span>
-                <span className="text-[8px] lg:text-[9px] block text-teal font-bold tracking-widest -mt-1">
+                <span className="font-black text-base sm:text-lg lg:text-xl text-navy-dark tracking-tight">
+                  TitipKampus
+                </span>
+                <span className="text-[7px] sm:text-[8px] lg:text-[9px] block text-teal font-bold tracking-widest -mt-0.5 sm:-mt-1">
                   UMP SERVICE
                 </span>
               </div>
@@ -203,17 +205,17 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
               </a>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-3">
+            {/* CTA Buttons - Mobile compact */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={onLogin}
-                className="px-4 py-2 text-sm font-semibold text-navy hover:text-teal transition-colors cursor-pointer hidden sm:block"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-navy hover:text-teal transition-colors cursor-pointer"
               >
                 Masuk
               </button>
               <button
                 onClick={onRegister}
-                className="px-5 py-2.5 bg-gradient-to-r from-teal to-teal-dark hover:from-teal-dark hover:to-teal text-white text-sm font-bold rounded-lg transition-all cursor-pointer shadow-lg shadow-teal/25"
+                className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-teal to-teal-dark hover:from-teal-dark hover:to-teal text-white text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer shadow-lg shadow-teal/25"
               >
                 Daftar Gratis
               </button>
@@ -222,27 +224,27 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
         </div>
       </nav>
 
-      {/* Hero Section - Grab Style */}
-      <section className="pt-20 lg:pt-24 bg-gradient-to-br from-navy via-slate-900 to-navy relative overflow-hidden">
+      {/* Hero Section - Mobile optimized */}
+      <section className="pt-20 lg:pt-24 pb-12 sm:pb-16 lg:pb-0 bg-gradient-to-br from-navy via-slate-900 to-navy relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-teal rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal/50 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 sm:w-96 sm:h-96 bg-teal rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-teal/50 rounded-full blur-3xl" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="text-center lg:text-left space-y-8">
+            <div className="text-center lg:text-left space-y-6 sm:space-y-8">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
                 <span className="w-2 h-2 bg-teal rounded-full animate-pulse" />
-                <span className="text-xs font-bold text-white/90">Platform Resmi Mahasiswa UMP</span>
+                <span className="text-[10px] sm:text-xs font-bold text-white/90">Platform Resmi Mahasiswa UMP</span>
               </div>
 
               {/* Headline */}
-              <div className="space-y-4">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight tracking-tight">
+              <div className="space-y-3 sm:space-y-4">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight tracking-tight">
                   Titip Barang,
                   <br />
                   <span className="bg-gradient-to-r from-teal to-emerald-400 bg-clip-text text-transparent">
@@ -251,47 +253,47 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
                   <br />
                   Saling Bantu.
                 </h1>
-                <p className="text-lg lg:text-xl text-slate-300 max-w-xl mx-auto lg:mx-0">
+                <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-xl mx-auto lg:mx-0">
                   Platform peer-to-peer untuk mahasiswa Universitas Muhammadiyah Purwokerto. Titip makan, fotokopi,
                   laundry, atau ojek — semua dalam satu aplikasi yang aman dan terpercaya.
                 </p>
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+              <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal" />
-                  <span className="text-sm font-medium text-white/80">Gratis Biaya Layanan</span>
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
+                  <span className="text-xs sm:text-sm font-medium text-white/80">Gratis</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal" />
-                  <span className="text-sm font-medium text-white/80">Verifikasi KTM</span>
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
+                  <span className="text-xs sm:text-sm font-medium text-white/80">Verifikasi KTM</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-teal" />
-                  <span className="text-sm font-medium text-white/80">COD Tunai</span>
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
+                  <span className="text-xs sm:text-sm font-medium text-white/80">COD Tunai</span>
                 </div>
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                 <button
                   onClick={onRegister}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-teal to-teal-dark hover:from-teal-dark hover:to-teal text-white font-bold rounded-xl transition-all cursor-pointer shadow-xl shadow-teal/30"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-teal to-teal-dark hover:from-teal-dark hover:to-teal text-white font-bold rounded-xl transition-all cursor-pointer shadow-xl shadow-teal/30 text-sm sm:text-base"
                 >
-                  <span className="text-lg">Daftar Gratis Sekarang</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <span>Daftar Gratis Sekarang</span>
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={onLogin}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/20 transition-all cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/20 transition-all cursor-pointer text-sm sm:text-base"
                 >
-                  <span className="text-lg">Masuk</span>
+                  <span>Masuk</span>
                 </button>
               </div>
             </div>
 
-            {/* Right - App Preview Mockup */}
+            {/* Right - App Preview Mockup - Desktop only */}
             <div className="relative hidden lg:block">
               <div className="relative">
                 {/* Phone Frame */}

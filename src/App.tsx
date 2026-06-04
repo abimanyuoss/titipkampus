@@ -5,6 +5,7 @@ import {
   Clock,
   ListTodo,
   LogOut,
+  Package,
   Printer,
   RefreshCw,
   Search,
@@ -358,9 +359,51 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#fbf9f8] space-y-4">
-        <div className="w-12 h-12 border-4 border-teal border-t-transparent rounded-full animate-spin" />
-        <p className="font-semibold text-sm text-navy-dark tracking-wide font-sans">Memuat Sistem TitipKampus UMP...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#fbf9f8] p-4 safe-area-top">
+        <div className="w-full max-w-sm">
+          {/* Logo Skeleton */}
+          <div className="flex items-center justify-center gap-3 mb-8 animate-fade-in">
+            <div className="w-14 h-14 bg-gradient-to-br from-navy to-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
+              <Sparkles className="w-7 h-7 text-white" />
+            </div>
+            <div className="text-left">
+              <div className="skeleton skeleton-text w-32 h-6 rounded-md" />
+              <div className="skeleton skeleton-text-sm w-20 h-3 rounded-md mt-1" />
+            </div>
+          </div>
+
+          {/* Card Skeleton */}
+          <div className="bg-white rounded-2xl shadow-card p-6 space-y-4">
+            {/* Header skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="skeleton skeleton-text w-40 h-5 rounded-md" />
+              <div className="skeleton w-10 h-4 rounded-full" />
+            </div>
+
+            {/* Navigation skeleton */}
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="skeleton h-16 rounded-xl" />
+              ))}
+            </div>
+
+            {/* Form skeleton */}
+            <div className="space-y-3 pt-4 border-t border-slate-100">
+              <div className="skeleton skeleton-text w-full h-10 rounded-lg" />
+              <div className="skeleton skeleton-text w-full h-10 rounded-lg" />
+              <div className="skeleton skeleton-text w-full h-20 rounded-lg" />
+              <div className="skeleton skeleton-text w-full h-12 rounded-lg" />
+            </div>
+
+            {/* Button skeleton */}
+            <div className="pt-4">
+              <div className="skeleton w-full h-12 rounded-xl" />
+            </div>
+          </div>
+
+          {/* Loading text */}
+          <p className="text-center text-xs text-slate-400 mt-6 animate-pulse">Memuat Sistem TitipKampus UMP...</p>
+        </div>
       </div>
     );
   }
@@ -436,7 +479,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex bg-[#fbf9f8] text-slate-800 antialiased font-sans">
-      {/* 1. SIDEBAR NAVIGATION */}
+      {/* 1. SIDEBAR NAVIGATION - Desktop Only */}
       <aside
         className="w-72 bg-navy text-white px-5 py-6 flex flex-col justify-between shrink-0 border-r border-slate-800 shadow-xl hidden lg:flex"
         id="root-sidebar"
@@ -566,54 +609,61 @@ export default function App() {
 
       {/* 2. MAIN HUB INTERFACE */}
       <div className="flex-grow flex flex-col min-h-screen overflow-x-hidden">
-        {/* Top bar header */}
-        <header className="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-slate-200 bg-white shadow-xs sticky top-0 z-40">
-          <div className="flex items-center gap-4">
+        {/* Top bar header - Mobile optimized */}
+        <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-slate-200 bg-white shadow-xs sticky top-0 z-40 safe-area-top">
+          <div className="flex items-center gap-4 w-full">
             {/* Logo on header for mobile layout */}
-            <div className="flex items-center gap-1.5 lg:hidden">
-              <span className="font-extrabold text-sm text-navy-dark">TitipKampus</span>
-              <span className="text-[8px] bg-teal text-white font-bold px-1.5 py-0.2 rounded">UMP</span>
+            <div className="flex items-center gap-2 lg:hidden">
+              <div className="w-8 h-8 bg-gradient-to-br from-navy to-slate-800 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-teal" />
+              </div>
+              <div>
+                <span className="font-extrabold text-sm text-navy-dark">TitipKampus</span>
+                <span className="text-[8px] bg-teal text-white font-bold px-1.5 py-0.2 rounded ml-1">UMP</span>
+              </div>
             </div>
 
-            {/* Quick Mobile tab selection */}
-            <div className="flex items-center gap-2 sm:gap-4 ml-2 border-l border-slate-200 pl-4">
+            {/* Mobile Tab Navigation */}
+            <div className="flex items-center gap-1 sm:gap-3 border-l border-slate-200 pl-3 sm:pl-4 ml-auto">
               <button
-                onClick={() => {
-                  setActiveTab('dashboard');
-                }}
-                className={`text-xs font-bold ${activeTab === 'dashboard' ? 'text-teal border-b-2 border-teal pb-1' : 'text-slate-400'} lg:hidden`}
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                  activeTab === 'dashboard' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
+                }`}
               >
                 Form
               </button>
               <button
-                onClick={() => {
-                  setActiveTab('active');
-                }}
-                className={`text-xs font-bold relative ${activeTab === 'active' ? 'text-teal border-b-2 border-teal pb-1' : 'text-slate-400'} lg:hidden`}
+                onClick={() => setActiveTab('active')}
+                className={`px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all relative ${
+                  activeTab === 'active' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
+                }`}
               >
-                Track
+                Lacak
                 {(mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length) > 0 && (
-                  <span className="absolute -top-1 -right-1.5 bg-rose-500 text-white w-2.5 h-2.5 rounded-full text-[6px] flex items-center justify-center animate-ping" />
+                  <span className="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center">
+                    {mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length}
+                  </span>
                 )}
               </button>
               <button
-                onClick={() => {
-                  setActiveTab('history');
-                }}
-                className={`text-xs font-bold ${activeTab === 'history' ? 'text-teal border-b-2 border-teal pb-1' : 'text-slate-400'} lg:hidden`}
+                onClick={() => setActiveTab('history')}
+                className={`px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                  activeTab === 'history' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
+                }`}
               >
                 Arsip
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="hidden sm:flex items-center gap-4">
             {/* Search Input */}
-            <div className="relative w-44 sm:w-64 hidden sm:block">
+            <div className="relative w-48 md:w-64">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
                 type="text"
-                placeholder="Cari rute atau pesanan..."
+                placeholder="Cari pesanan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 pl-9 pr-3 py-1.5 rounded-full text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
@@ -627,14 +677,14 @@ export default function App() {
                 aria-label="Buka notifikasi operasional"
                 className="p-2 text-slate-500 hover:text-slate-700 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 transition-colors cursor-pointer relative"
               >
-                <Bell className="w-4.5 h-4.5" />
+                <Bell className="w-4 h-4" />
                 {notifications.length > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full" />
                 )}
               </button>
               {/* Dropdown list for instructions notification */}
               <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-lg p-4 text-xs font-medium space-y-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 text-left z-50">
-                <span className="font-bold text-slate-800 block">Notifikasi Operasional</span>
+                <span className="font-bold text-slate-800 block">Notifikasi</span>
                 <div className="divide-y divide-slate-100 max-h-[220px] overflow-y-auto space-y-1">
                   {notifications.map((notif, index) => (
                     <div key={index} className="py-2 text-slate-600 leading-relaxed font-sans">
@@ -644,22 +694,23 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            <button
-              onClick={handleLogout}
-              className="lg:hidden flex items-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Keluar</span>
-            </button>
           </div>
+
+          {/* Mobile Logout */}
+          <button
+            onClick={handleLogout}
+            className="lg:hidden flex items-center gap-1.5 p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all cursor-pointer ml-2"
+            aria-label="Keluar akun"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </header>
 
         {/* 3. ALERTS CARDS FEED */}
         {alertMessage && (
-          <div className="px-4 sm:px-8 pt-4">
+          <div className="px-4 sm:px-6 lg:px-8 pt-4 animate-slide-down">
             <div
-              className={`p-3.5 rounded-xl border flex items-start gap-2.5 text-xs text-left shadow-xs ${
+              className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-2.5 text-xs text-left shadow-sm ${
                 alertMessage.type === 'success'
                   ? 'bg-emerald-50 border-emerald-200 text-[#005227]'
                   : alertMessage.type === 'error'
@@ -667,62 +718,61 @@ export default function App() {
                     : 'bg-blue-50 border-blue-200 text-blue-800'
               }`}
             >
-              <AlertCircle className="w-4.5 h-4.5 mt-0.5 shrink-0" />
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0" />
               <div className="space-y-0.5">
-                <span className="font-bold block uppercase">
+                <span className="font-bold block uppercase text-[10px] sm:text-xs">
                   {alertMessage.type === 'success'
                     ? 'Sukses'
                     : alertMessage.type === 'error'
                       ? 'Perlu Tindak Lanjut'
                       : 'Informasi'}
                 </span>
-                <p>{alertMessage.text}</p>
+                <p className="text-xs sm:text-sm">{alertMessage.text}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* 4. MASTER PANEL WRAPPERS */}
-        <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full flex-grow">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-grow">
           {/* Active View Router Switcher */}
           {activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 stagger-enter">
               {/* --- PERSPECTIVE A: USER MODE DASHBOARD --- */}
               {mode === 'user' && (
                 <>
                   {/* Left Column (Forms and assisted order details) */}
-                  <div className="col-span-12 lg:col-span-7 space-y-6">
-                    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+                  <div className="col-span-1 xl:col-span-7 space-y-4 sm:space-y-6">
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden animate-slide-up">
                       {/* Gradient card wrapper */}
-                      <div className="p-6 bg-navy text-white text-left relative overflow-hidden">
+                      <div className="p-4 sm:p-6 bg-navy text-white text-left relative overflow-hidden">
                         <div className="absolute -right-10 -bottom-10 opacity-10">
-                          <Sliders className="w-48 h-48" />
+                          <Sliders className="w-32 h-32 sm:w-48 sm:h-48" />
                         </div>
-                        <h2 className="text-xl font-extrabold tracking-tight">Titip Apa Hari Ini di UMP?</h2>
-                        <p className="text-xs text-slate-300 mt-1 max-w-md">
+                        <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">Titip Apa Hari Ini di UMP?</h2>
+                        <p className="text-[11px] sm:text-xs text-slate-300 mt-1 max-w-md">
                           Butuh bantuan titip beli soto kantin teknik, print modul kopma, laundry kiloan, atau ojek ke
                           gerbang? Teman mahasiswa aktif UMP siap membantumu kapan saja!
                         </p>
                       </div>
 
-                      <div className="p-6 space-y-6">
+                      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                         {/* 4 core service selector tabs */}
                         <ServiceSelector
                           selectedService={selectedService}
                           onSelectService={(s) => {
                             setSelectedService(s);
-                            // Clear assisted form details.
                             setAiPreset(null);
                           }}
                         />
 
                         {/* Automated order assistance */}
-                        <div className="border-t border-slate-100 pt-6">
+                        <div className="border-t border-slate-100 pt-4 sm:pt-6">
                           <AiAssistant onApplyPreset={handleApplyAiPreset} />
                         </div>
 
                         {/* Order Placement form */}
-                        <div className="border-t border-slate-150 pt-6">
+                        <div className="border-t border-slate-150 pt-4 sm:pt-6">
                           <div className="mb-4 text-left">
                             <h4 className="font-extrabold text-sm text-navy-dark tracking-tight">
                               Form Rincian Layanan ({selectedService.toUpperCase()})
@@ -745,9 +795,12 @@ export default function App() {
                     </div>
 
                     {/* Jaminan Trust Banner */}
-                    <div className="bg-gradient-to-r from-teal-light/20 to-emerald-light/5 border border-teal/10 rounded-xl p-5 text-left flex items-start gap-4">
+                    <div
+                      className="bg-gradient-to-r from-teal-light/20 to-emerald-light/5 border border-teal/10 rounded-xl p-4 sm:p-5 text-left flex items-start gap-4 animate-slide-up"
+                      style={{ animationDelay: '100ms' }}
+                    >
                       <div className="w-10 h-10 bg-teal text-white rounded-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                        <ShieldCheck className="w-6 h-6" />
+                        <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
                       <div className="space-y-1 text-slate-700">
                         <h4 className="font-bold text-xs uppercase tracking-wider text-navy-dark">
@@ -762,8 +815,11 @@ export default function App() {
                   </div>
 
                   {/* Right Column (Instructions & Quick Job Tracker list) */}
-                  <div className="col-span-12 lg:col-span-5 space-y-6">
-                    <div className="bg-white border border-slate-200 rounded-xl p-5 text-left space-y-3 shadow-xs">
+                  <div className="col-span-1 xl:col-span-5 space-y-4 sm:space-y-6">
+                    <div
+                      className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 text-left space-y-3 shadow-card animate-slide-up"
+                      style={{ animationDelay: '50ms' }}
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
@@ -780,7 +836,7 @@ export default function App() {
                       <p className="text-xs text-slate-500 leading-relaxed">{courierStatusView.description}</p>
                       <button
                         onClick={openProviderDashboard}
-                        className="w-full py-2.5 px-4 bg-teal hover:bg-teal-dark active:scale-95 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex justify-center items-center gap-1.5"
+                        className="w-full py-2.5 px-4 bg-teal hover:bg-teal-dark active:scale-[0.98] text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex justify-center items-center gap-1.5"
                       >
                         <UserCheck className="w-3.5 h-3.5" />
                         <span>{courierStatusView.action}</span>
@@ -788,7 +844,7 @@ export default function App() {
                     </div>
 
                     {/* Active Order Progress Quick list */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
                       <StatusTracker
                         orders={filteredOrders}
                         currentUserId={currentUser?.id || ''}
@@ -801,7 +857,10 @@ export default function App() {
                     </div>
 
                     {/* Operational guidelines card */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-5 text-left space-y-3 shadow-xs">
+                    <div
+                      className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 text-left space-y-3 shadow-card animate-slide-up"
+                      style={{ animationDelay: '150ms' }}
+                    >
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
                         Petunjuk Fitur COD
                       </span>
@@ -828,87 +887,92 @@ export default function App() {
               {mode === 'provider' && currentProvider && currentProvider.status === 'APPROVED' && (
                 <>
                   {/* Left Column (Claimable Job feeds) */}
-                  <div className="col-span-12 lg:col-span-7 space-y-6">
-                    <div className="flex items-center justify-between">
+                  <div className="col-span-1 xl:col-span-7 space-y-4 sm:space-y-6">
+                    <div className="flex items-center justify-between gap-4 animate-slide-up">
                       <div className="text-left">
-                        <h2 className="text-lg font-extrabold text-navy-dark flex items-center gap-1.5">
+                        <h2 className="text-base sm:text-lg font-extrabold text-navy-dark flex items-center gap-1.5">
                           Tugas Pengantaran Terbuka UMP
                           <span className="w-2 h-2 bg-emerald-action rounded-full animate-ping" />
                         </h2>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 hidden sm:block">
                           Pilihlah salah satu tugas di bawah ini untuk Anda klaim dan antarkan.
                         </p>
                       </div>
                       <button
                         onClick={fetchState}
-                        className="p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded text-slate-500 cursor-pointer transition-colors"
+                        className="p-2 sm:p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-500 cursor-pointer transition-colors shrink-0"
                         title="Perbarui daftar tugas"
                       >
                         <RefreshCw className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <JobFeed orders={filteredOrders} currentUserId={currentUser.id} onClaimJob={handleClaimJob} />
+                    <div className="animate-slide-up" style={{ animationDelay: '50ms' }}>
+                      <JobFeed orders={filteredOrders} currentUserId={currentUser.id} onClaimJob={handleClaimJob} />
+                    </div>
                   </div>
 
                   {/* Right Column (Courier Status indicators & claimed active maps) */}
-                  <div className="col-span-12 lg:col-span-5 space-y-6">
+                  <div className="col-span-1 xl:col-span-5 space-y-4 sm:space-y-6">
                     {/* Courier current active metrics bar */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 text-left shadow-xs">
+                    <div
+                      className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up"
+                      style={{ animationDelay: '100ms' }}
+                    >
+                      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 text-left shadow-card">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1">
                           Dompet Kurir
                         </span>
-                        <p className="text-xl font-extrabold text-[#119b50]">
+                        <p className="text-lg sm:text-xl font-extrabold text-[#119b50]">
                           Rp {Number(currentProvider.balance).toLocaleString('id-ID')}
                         </p>
-                        <span className="text-[9px] text-[#119b50]/80 block mt-1 font-bold">
-                          Siap dicairkan via Kopma
-                        </span>
+                        <span className="text-[9px] text-[#119b50]/80 block mt-1 font-bold">Siap dicairkan</span>
                       </div>
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 text-left shadow-xs">
+                      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 text-left shadow-card">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1">
                           Rating Anda
                         </span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <p className="text-xl font-extrabold text-navy-dark">{currentProvider.rating || '5.0'}</p>
-                          <span className="material-symbols-outlined text-amber-500 fill text-sm">
-                            <Star className="w-4.5 h-4.5 text-amber-400 fill-amber-400" />
-                          </span>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <p className="text-lg sm:text-xl font-extrabold text-navy-dark">
+                            {currentProvider.rating || '5.0'}
+                          </p>
+                          <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                         </div>
                         <span className="text-[9px] text-slate-400 block mt-1">
-                          Dari total {currentProvider.reviewCount} ulasan
+                          {currentProvider.reviewCount} ulasan
                         </span>
                       </div>
                     </div>
 
                     {/* Courier claimed tasks tracking list */}
-                    <StatusTracker
-                      orders={filteredOrders}
-                      currentUserId={currentUser?.id || ''}
-                      providerId={currentProvider.id}
-                      mode="provider"
-                      onUpdateStatus={handleUpdateOrderStatus}
-                      onSubmitReview={handleSubmitReview}
-                      onPayOrder={handlePayOrder}
-                    />
+                    <div className="animate-slide-up" style={{ animationDelay: '150ms' }}>
+                      <StatusTracker
+                        orders={filteredOrders}
+                        currentUserId={currentUser?.id || ''}
+                        providerId={currentProvider.id}
+                        mode="provider"
+                        onUpdateStatus={handleUpdateOrderStatus}
+                        onSubmitReview={handleSubmitReview}
+                        onPayOrder={handlePayOrder}
+                      />
+                    </div>
                   </div>
                 </>
               )}
 
               {mode === 'provider' && currentProvider && currentProvider.status !== 'APPROVED' && (
-                <div className="col-span-12 max-w-2xl mx-auto bg-white border border-amber-200 rounded-xl p-6 text-left shadow-xs space-y-3">
+                <div className="col-span-1 max-w-2xl mx-auto bg-white border border-amber-200 rounded-xl p-5 sm:p-6 text-left shadow-card space-y-3 animate-slide-up">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-amber-700 bg-amber-50 px-2 py-1 rounded-full border border-amber-100 inline-block">
                     {currentProvider.status === 'REJECTED' ? 'Ditolak Admin' : 'Menunggu Verifikasi Admin'}
                   </span>
-                  <h2 className="text-lg font-extrabold text-navy-dark">Akun kurir belum aktif</h2>
+                  <h2 className="text-base sm:text-lg font-extrabold text-navy-dark">Akun kurir belum aktif</h2>
                   <p className="text-sm text-slate-600 leading-relaxed">
                     Data NIM, fakultas, dan KTM sudah tersimpan. Kurir baru hanya dapat menerima tugas setelah
                     diverifikasi admin untuk menjaga keamanan transaksi COD dan digital.
                   </p>
                   <button
                     onClick={openStudentDashboard}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all"
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all"
                   >
                     Kembali ke Dashboard Mahasiswa
                   </button>
@@ -917,7 +981,7 @@ export default function App() {
 
               {/* Offline mode / Gate of entering registration if client hasn't joined courier pool */}
               {mode === 'provider' && !currentProvider && (
-                <div className="col-span-12 py-10">
+                <div className="col-span-1 py-6 sm:py-10 animate-slide-up">
                   <ProviderRegistration onSuccess={handleRegistrationSuccess} onCancel={openStudentDashboard} />
                 </div>
               )}
@@ -926,7 +990,7 @@ export default function App() {
 
           {/* Active View Router: LIST OF ACTIVE ORDERS OR JOBS */}
           {activeTab === 'active' && (
-            <div className="max-w-3xl mx-auto space-y-4">
+            <div className="max-w-3xl mx-auto space-y-4 stagger-enter">
               <StatusTracker
                 orders={filteredOrders}
                 currentUserId={currentUser?.id || ''}
@@ -941,36 +1005,39 @@ export default function App() {
 
           {/* Active View Router: HISTORY TRANSACTIONS */}
           {activeTab === 'history' && (
-            <div className="max-w-4xl mx-auto space-y-6">
-              <div className="flex items-center justify-between">
+            <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="text-left">
-                  <h2 className="text-base font-extrabold text-navy-dark">Arsip Riwayat Saling Bantu</h2>
+                  <h2 className="text-base sm:text-lg font-extrabold text-navy-dark">Arsip Riwayat Saling Bantu</h2>
                   <p className="text-xs text-slate-500">
                     Kumpulan riwayat tugas yang telah Anda selesaikan/terima di lingkungan UMP.
                   </p>
                 </div>
-                <span className="text-xs px-2.5 py-1 bg-slate-100 rounded text-slate-600 font-bold border border-slate-200">
+                <span className="text-xs px-2.5 py-1 bg-slate-100 rounded text-slate-600 font-bold border border-slate-200 shrink-0">
                   {personalHistoryOrders.length} Selesai
                 </span>
               </div>
 
               {personalHistoryOrders.length === 0 ? (
-                <div className="border border-slate-200/60 bg-white shadow-xs rounded-xl p-12 text-center text-slate-400 space-y-2">
-                  <Clock className="w-12 h-12 stroke-1 mx-auto text-slate-300 animate-spin" />
-                  <p className="text-sm font-semibold">Arsip Riwayat Kosong</p>
+                <div className="border border-slate-200/60 bg-white shadow-xs rounded-xl p-8 sm:p-12 text-center text-slate-400 space-y-3 animate-slide-up">
+                  <div className="w-16 h-16 bg-slate-100 rounded-2xl mx-auto mb-4 flex items-center justify-center relative">
+                    <Clock className="w-8 h-8 text-slate-300" />
+                    <div className="absolute inset-0 bg-teal/5 rounded-2xl animate-pulse" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-600">Arsip Riwayat Kosong</p>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto">
                     Anda belum memiliki transaksi selesai. Mulai gunakan layanan atau ambil tugas kurir saat akun sudah
                     terverifikasi.
                   </p>
                 </div>
               ) : (
-                <div className="bg-white border border-slate-200 rounded-2xl shadow-xs divide-y divide-slate-100">
+                <div className="bg-white border border-slate-200 rounded-2xl shadow-xs divide-y divide-slate-100 stagger-enter">
                   {personalHistoryOrders.map((hist) => (
                     <div
                       key={hist.id}
-                      className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left hover:bg-slate-50/50 transition-colors"
+                      className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start gap-4 text-left hover:bg-slate-50/50 transition-colors"
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3 w-full">
                         <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
                           {hist.serviceType === 'food' ? (
                             <Utensils className="w-5 h-5 text-amber-600" />
@@ -982,11 +1049,11 @@ export default function App() {
                             <Bike className="w-5 h-5 text-emerald-600" />
                           )}
                         </div>
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 px-2 py-0.2 rounded uppercase">
+                        <div className="space-y-0.5 flex-grow min-w-0">
+                          <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 px-2 py-0.5 rounded uppercase inline-block">
                             Selesai COD
                           </span>
-                          <p className="font-extrabold text-navy-dark text-xs mt-1">
+                          <p className="font-extrabold text-navy-dark text-xs sm:text-sm mt-1 truncate-2">
                             {hist.serviceType === 'food'
                               ? 'Makan'
                               : hist.serviceType === 'photocopy'
@@ -996,13 +1063,13 @@ export default function App() {
                                   : 'Ojek Kampus'}{' '}
                             - {hist.details}
                           </p>
-                          <span className="text-[10px] text-slate-400 block font-medium">
+                          <span className="text-[10px] text-slate-400 block font-medium truncate">
                             Rute: {hist.sourceLocation} Ke {hist.deliveryLocation}
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-left sm:text-right space-y-1">
+                      <div className="text-left sm:text-right space-y-1 shrink-0">
                         <span className="text-[10px] font-bold text-slate-400 block uppercase">Pembayaran</span>
                         <p className="font-extrabold text-sm text-[#119b50]">
                           Rp {Number(hist.totalFee || hist.fee).toLocaleString('id-ID')}
@@ -1020,38 +1087,45 @@ export default function App() {
 
           {/* Active View Router: EARNINGS REPORTS */}
           {activeTab === 'earnings' && mode === 'provider' && currentProvider && (
-            <div className="max-w-4xl mx-auto space-y-6">
-              <div className="bg-gradient-to-r from-teal to-teal-dark p-6 rounded-2xl text-white text-left shadow-lg relative overflow-hidden">
+            <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+              <div className="bg-gradient-to-r from-teal to-teal-dark p-5 sm:p-6 rounded-2xl text-white text-left shadow-lg relative overflow-hidden animate-slide-up">
                 <div className="absolute right-0 top-0 opacity-10">
-                  <TrendingUp className="w-64 h-64" />
+                  <TrendingUp className="w-48 h-48 sm:w-64 sm:h-64" />
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-teal-light uppercase tracking-wider block">
+                <div className="space-y-1 relative">
+                  <span className="text-[10px] sm:text-xs font-bold text-teal-light uppercase tracking-wider block">
                     Total Pendapatan Terverifikasi
                   </span>
-                  <h2 className="text-3xl font-black">Rp {Number(currentProvider.balance).toLocaleString('id-ID')}</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black">
+                    Rp {Number(currentProvider.balance).toLocaleString('id-ID')}
+                  </h2>
                   <p className="text-xs text-teal-light/80 block mt-1">
                     Telah dicairkan langsung ke lobi / loket Kopma UMP menggunakan KTM sah.
                   </p>
                 </div>
               </div>
 
-              <div className="text-left space-y-2">
+              <div className="text-left space-y-3 animate-slide-up" style={{ animationDelay: '100ms' }}>
                 <h4 className="font-bold text-sm text-navy-dark">Detail Transaksi Pendapatan Anda</h4>
-                <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100 overflow-hidden">
+                <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100 overflow-hidden shadow-card">
                   {orders
                     .filter((o) => o.providerId === currentProvider.id && o.status === 'COMPLETED')
                     .map((o) => (
-                      <div key={o.id} className="p-4 flex justify-between items-center text-xs text-slate-600">
+                      <div
+                        key={o.id}
+                        className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs text-slate-600"
+                      >
                         <div className="space-y-0.5">
-                          <p className="font-700 text-slate-800 font-bold">
+                          <p className="font-bold text-slate-800">
                             Titipan {o.serviceType.toUpperCase()} - {o.customerName}
                           </p>
                           <span className="text-[10px] text-slate-400 block">
                             {new Date(o.createdAt).toLocaleDateString('id-ID')}
                           </span>
                         </div>
-                        <span className="font-bold text-[#119b50]">+Rp {Number(o.fee).toLocaleString('id-ID')}</span>
+                        <span className="font-bold text-[#119b50] shrink-0">
+                          +Rp {Number(o.fee).toLocaleString('id-ID')}
+                        </span>
                       </div>
                     ))}
                 </div>
@@ -1059,6 +1133,85 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 safe-area-bottom z-50">
+          <div className="flex items-center justify-around">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                activeTab === 'dashboard' ? 'text-teal' : 'text-slate-400'
+              }`}
+            >
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  activeTab === 'dashboard' ? 'bg-teal/10' : ''
+                }`}
+              >
+                <Package className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-bold">Layanan</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all relative ${
+                activeTab === 'active' ? 'text-teal' : 'text-slate-400'
+              }`}
+            >
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  activeTab === 'active' ? 'bg-teal/10' : ''
+                }`}
+              >
+                <Clock className="w-5 h-5" />
+              </div>
+              {(mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length) > 0 && (
+                <span className="absolute top-1 right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center">
+                  {mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length}
+                </span>
+              )}
+              <span className="text-[10px] font-bold">Lacak</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                activeTab === 'history' ? 'text-teal' : 'text-slate-400'
+              }`}
+            >
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  activeTab === 'history' ? 'bg-teal/10' : ''
+                }`}
+              >
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-bold">Arsip</span>
+            </button>
+
+            {mode === 'provider' && currentProvider && (
+              <button
+                onClick={() => setActiveTab('earnings')}
+                className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                  activeTab === 'earnings' ? 'text-teal' : 'text-slate-400'
+                }`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                    activeTab === 'earnings' ? 'bg-teal/10' : ''
+                  }`}
+                >
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold">Pendapatan</span>
+              </button>
+            )}
+          </div>
+        </nav>
+
+        {/* Spacer for bottom nav on mobile */}
+        <div className="h-16 lg:hidden" />
       </div>
     </div>
   );
