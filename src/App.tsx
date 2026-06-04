@@ -1135,89 +1135,92 @@ export default function App() {
           )}
         </div>
 
-        {/* Mobile Bottom Navigation */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 safe-area-bottom z-50">
-          <div className="flex items-center justify-around">
+        {/* Mobile Bottom Navigation - iPhone safe area optimized */}
+        <nav
+          className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-1 py-1.5 z-50"
+          style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex items-center justify-around gap-1">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+              className={`flex flex-col items-center justify-center p-1.5 rounded-lg transition-all min-w-[52px] ${
                 activeTab === 'dashboard' ? 'text-teal' : 'text-slate-400'
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                   activeTab === 'dashboard' ? 'bg-teal/10' : ''
                 }`}
               >
                 <Package className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-bold">Layanan</span>
+              <span className="text-[9px] font-bold mt-0.5">Layanan</span>
             </button>
 
             <button
               onClick={() => setActiveTab('active')}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all relative ${
+              className={`flex flex-col items-center justify-center p-1.5 rounded-lg transition-all relative min-w-[52px] ${
                 activeTab === 'active' ? 'text-teal' : 'text-slate-400'
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                   activeTab === 'active' ? 'bg-teal/10' : ''
                 }`}
               >
                 <Clock className="w-5 h-5" />
               </div>
               {(mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length) > 0 && (
-                <span className="absolute top-1 right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-rose-500 text-white w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center">
                   {mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length}
                 </span>
               )}
-              <span className="text-[10px] font-bold">Lacak</span>
+              <span className="text-[9px] font-bold mt-0.5">Lacak</span>
             </button>
 
             <button
               onClick={() => setActiveTab('history')}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+              className={`flex flex-col items-center justify-center p-1.5 rounded-lg transition-all min-w-[52px] ${
                 activeTab === 'history' ? 'text-teal' : 'text-slate-400'
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                   activeTab === 'history' ? 'bg-teal/10' : ''
                 }`}
               >
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-bold">Arsip</span>
+              <span className="text-[9px] font-bold mt-0.5">Arsip</span>
             </button>
 
             {mode === 'provider' && currentProvider && (
               <button
                 onClick={() => setActiveTab('earnings')}
-                className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center p-1.5 rounded-lg transition-all min-w-[52px] ${
                   activeTab === 'earnings' ? 'text-teal' : 'text-slate-400'
                 }`}
               >
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                     activeTab === 'earnings' ? 'bg-teal/10' : ''
                   }`}
                 >
                   <TrendingUp className="w-5 h-5" />
                 </div>
-                <span className="text-[10px] font-bold">Pendapatan</span>
+                <span className="text-[9px] font-bold mt-0.5">Pendapatan</span>
               </button>
             )}
 
-            {/* Logout Button */}
+            {/* Logout Button - Always visible */}
             <button
               onClick={handleLogout}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg transition-all text-slate-400 hover:text-rose-500"
+              className="flex flex-col items-center justify-center p-1.5 rounded-lg transition-all text-slate-400 hover:text-rose-500 min-w-[52px]"
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 hover:bg-rose-50">
                 <LogOut className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-bold">Keluar</span>
+              <span className="text-[9px] font-bold mt-0.5">Keluar</span>
             </button>
           </div>
         </nav>
