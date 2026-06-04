@@ -610,69 +610,68 @@ export default function App() {
       {/* 2. MAIN HUB INTERFACE */}
       <div className="flex-grow flex flex-col min-h-screen overflow-x-hidden">
         {/* Top bar header - Mobile optimized */}
-        <header className="h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-slate-200 bg-white shadow-xs sticky top-0 z-40 safe-area-top">
-          <div className="flex items-center gap-4 w-full">
-            {/* Logo on header for mobile layout */}
-            <div className="flex items-center gap-2 lg:hidden">
-              <div className="w-8 h-8 bg-gradient-to-br from-navy to-slate-800 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-teal" />
-              </div>
-              <div>
-                <span className="font-extrabold text-sm text-navy-dark">TitipKampus</span>
-                <span className="text-[8px] bg-teal text-white font-bold px-1.5 py-0.2 rounded ml-1">UMP</span>
-              </div>
+        <header className="h-14 sm:h-16 flex items-center justify-between px-3 sm:px-4 lg:px-6 border-b border-slate-200 bg-white shadow-xs sticky top-0 z-40 safe-area-top">
+          {/* Left: Logo */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="w-8 h-8 bg-gradient-to-br from-navy to-slate-800 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-teal" />
             </div>
-
-            {/* Mobile Tab Navigation */}
-            <div className="flex items-center gap-1 sm:gap-3 border-l border-slate-200 pl-3 sm:pl-4 ml-auto">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeTab === 'dashboard' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
-                }`}
-              >
-                Form
-              </button>
-              <button
-                onClick={() => setActiveTab('active')}
-                className={`px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all relative ${
-                  activeTab === 'active' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
-                }`}
-              >
-                Lacak
-                {(mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length) > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-rose-500 text-white w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center">
-                    {mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`px-3 sm:px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeTab === 'history' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
-                }`}
-              >
-                Arsip
-              </button>
+            <div className="hidden sm:flex flex-col">
+              <span className="font-extrabold text-sm text-navy-dark leading-tight">TitipKampus</span>
+              <span className="text-[8px] text-teal font-bold leading-tight">UMP</span>
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-4">
-            {/* Search Input */}
-            <div className="relative w-48 md:w-64">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+          {/* Center: Mobile Tab Navigation */}
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'dashboard' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
+              }`}
+            >
+              Form
+            </button>
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-lg transition-all relative ${
+                activeTab === 'active' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
+              }`}
+            >
+              Lacak
+              {(mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length) > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white w-3.5 h-3.5 rounded-full text-[8px] font-bold flex items-center justify-center">
+                  {mode === 'user' ? personalActiveOrders.length : claimedActiveOrders.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'history' ? 'bg-teal text-white' : 'text-slate-400 hover:bg-slate-100'
+              }`}
+            >
+              Arsip
+            </button>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Search - Desktop only */}
+            <div className="relative hidden md:block">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Cari pesanan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 pl-9 pr-3 py-1.5 rounded-full text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
+                className="w-40 lg:w-56 bg-slate-50 border border-slate-200 pl-9 pr-3 py-1.5 rounded-full text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
                 id="header-search-input"
               />
             </div>
 
-            {/* Notification Drawer Popover */}
-            <div className="relative group">
+            {/* Notification - Desktop only */}
+            <div className="relative group hidden md:block">
               <button
                 aria-label="Buka notifikasi operasional"
                 className="p-2 text-slate-500 hover:text-slate-700 bg-slate-50 border border-slate-100 rounded-full hover:bg-slate-100 transition-colors cursor-pointer relative"
@@ -694,17 +693,17 @@ export default function App() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Mobile Logout - Always visible on mobile, hidden on desktop */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all cursor-pointer"
-            aria-label="Keluar akun"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="text-xs font-bold hidden sm:inline">Keluar</span>
-          </button>
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-500 rounded-lg transition-all cursor-pointer"
+              aria-label="Keluar akun"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs font-bold hidden sm:inline">Keluar</span>
+            </button>
+          </div>
         </header>
 
         {/* 3. ALERTS CARDS FEED */}
