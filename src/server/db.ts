@@ -19,6 +19,7 @@ import type {
   Voucher
 } from '../types';
 import { InMemoryTitipKampusDB } from './memory-db';
+import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config';
 
 const prisma = new PrismaClient();
 
@@ -130,6 +131,18 @@ function createOtpCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+function toSeedUserData(seedUser: SeedUserConfig, passwordHash: string) {
+  return {
+    name: seedUser.name,
+    email: seedUser.email,
+    avatar: seedUser.avatar,
+    memberStatus: seedUser.memberStatus,
+    phone: seedUser.phone,
+    role: seedUser.role,
+    passwordHash
+  };
+}
+
 type DatabaseStorageMode = 'neon-postgresql' | 'in-memory';
 
 type DatabaseDelegate = {
@@ -177,53 +190,23 @@ function getStartupErrorMessage(error: unknown) {
 
 export class TitipKampusDB {
   async ensureSeedData() {
-    const studentPasswordHash = await bcrypt.hash('aji123', 12);
-    const adminPasswordHash = await bcrypt.hash('admin123', 12);
+    const seedUsers = [getSeedAdminUser(), getSeedStudentUser()].filter((user): user is SeedUserConfig =>
+      Boolean(user)
+    );
 
-    await prisma.user.upsert({
-      where: { id: 'user-admin' },
-      update: {
-        name: 'Admin TitipKampus',
-        email: 'admin@gmail.com',
-        avatar: 'https://api.dicebear.com/8.x/initials/svg?seed=Admin%20TitipKampus',
-        role: 'ADMIN',
-        memberStatus: 'Gold',
-        phone: '080000000000',
-        passwordHash: adminPasswordHash
-      },
-      create: {
-        id: 'user-admin',
-        name: 'Admin TitipKampus',
-        email: 'admin@gmail.com',
-        avatar: 'https://api.dicebear.com/8.x/initials/svg?seed=Admin%20TitipKampus',
-        memberStatus: 'Gold',
-        phone: '080000000000',
-        role: 'ADMIN',
-        passwordHash: adminPasswordHash
-      }
-    });
+    for (const seedUser of seedUsers) {
+      const passwordHash = await bcrypt.hash(seedUser.password, 12);
+      const userData = toSeedUserData(seedUser, passwordHash);
 
-    await prisma.user.upsert({
-      where: { id: 'user-alex' },
-      update: {
-        name: 'Aji',
-        email: 'aji@gmail.com',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
-        memberStatus: 'Gold',
-        phone: '081234567890',
-        role: 'STUDENT',
-        passwordHash: studentPasswordHash
-      },
-      create: {
-        id: 'user-alex',
-        name: 'Aji',
-        email: 'aji@gmail.com',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
-        memberStatus: 'Gold',
-        phone: '081234567890',
-        passwordHash: studentPasswordHash
-      }
-    });
+      await prisma.user.upsert({
+        where: { id: seedUser.id },
+        update: userData,
+        create: {
+          id: seedUser.id,
+          ...userData
+        }
+      });
+    }
 
     await prisma.voucher.upsert({
       where: { code: 'UMPHEMAT' },

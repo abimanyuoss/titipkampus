@@ -6,7 +6,7 @@
   "devCommand": "npm run dev",
   "regions": ["sin1"],
   "functions": {
-    "server.ts": {
+    "api/[...path].ts": {
       "runtime": "nodejs22.x"
     }
   },

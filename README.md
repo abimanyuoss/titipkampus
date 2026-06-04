@@ -25,13 +25,14 @@ Project ini memakai Biome sebagai pengganti ESLint + Prettier untuk linting, for
 - Format saja: `npm run format`
 - TypeScript check saja: `npm run typecheck`
 
-Login mahasiswa uji:
-- Email: `aji@gmail.com`
-- Password: `aji123`
+Akun demo lokal otomatis dibuat saat `NODE_ENV` bukan `production`:
+- Mahasiswa: `demo.mahasiswa@gmail.com` / `demo1234`
+- Admin: `demo.admin@gmail.com` / `admin123`
 
-Admin login:
-- Email: `admin@gmail.com`
-- Password: `admin123`
+Untuk production, jangan commit kredensial asli. Isi `DATABASE_URL`,
+`SESSION_SECRET`, dan kredensial admin awal lewat environment Vercel
+(`SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME`, `SEED_ADMIN_PHONE`)
+jika admin seed memang diperlukan.
 
 Fitur final:
 - Realtime update via Server-Sent Events (`/api/events`).

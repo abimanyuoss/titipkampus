@@ -11,6 +11,7 @@ import type {
   User,
   Voucher
 } from '../types';
+import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config';
 
 type CreateOrderInput = {
   customerUserId: string;
@@ -92,6 +93,19 @@ function createUniqueEmailError() {
   return error;
 }
 
+function toStoredSeedUser(seedUser: SeedUserConfig, passwordHash: string): Omit<StoredUser, 'createdAt' | 'updatedAt'> {
+  return {
+    id: seedUser.id,
+    name: seedUser.name,
+    email: seedUser.email,
+    avatar: seedUser.avatar || createAvatarUrl(seedUser.name),
+    memberStatus: seedUser.memberStatus,
+    phone: seedUser.phone,
+    role: seedUser.role,
+    passwordHash
+  };
+}
+
 function sortNewestFirst<T extends { createdAt: Date }>(a: T, b: T) {
   return b.createdAt.getTime() - a.createdAt.getTime();
 }
@@ -108,30 +122,13 @@ export class InMemoryTitipKampusDB {
   async ensureSeedData() {
     if (this.seeded) return;
 
-    const studentPasswordHash = await bcrypt.hash('aji123', 12);
-    const adminPasswordHash = await bcrypt.hash('admin123', 12);
+    const seedUsers = [getSeedAdminUser(), getSeedStudentUser()].filter((user): user is SeedUserConfig =>
+      Boolean(user)
+    );
 
-    this.upsertUser({
-      id: 'user-admin',
-      name: 'Admin TitipKampus',
-      email: 'admin@gmail.com',
-      avatar: 'https://api.dicebear.com/8.x/initials/svg?seed=Admin%20TitipKampus',
-      memberStatus: 'Gold',
-      phone: '080000000000',
-      role: 'ADMIN',
-      passwordHash: adminPasswordHash
-    });
-
-    this.upsertUser({
-      id: 'user-alex',
-      name: 'Aji',
-      email: 'aji@gmail.com',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
-      memberStatus: 'Gold',
-      phone: '081234567890',
-      role: 'STUDENT',
-      passwordHash: studentPasswordHash
-    });
+    for (const seedUser of seedUsers) {
+      this.upsertUser(toStoredSeedUser(seedUser, await bcrypt.hash(seedUser.password, 12)));
+    }
 
     this.upsertVoucher({
       code: 'UMPHEMAT',

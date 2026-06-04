@@ -2,7 +2,7 @@ import { createServer as createHttpServer, type Server } from 'node:http';
 import path from 'node:path';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
-import express, { type Request, type Response } from 'express';
+import express, { type Express, type Request, type Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import { clearSessionCookie, readSessionUserId, setSessionCookie } from './src/server/auth';
 import { db } from './src/server/db';
@@ -121,7 +121,12 @@ async function listenWithPortFallback(server: Server, preferredPort: number) {
   }
 }
 
-async function startServer() {
+type CreateAppOptions = {
+  hmrServer?: Server;
+  serveFrontend?: boolean;
+};
+
+async function configureTitipKampusApp(app: Express, options: CreateAppOptions = {}) {
   const requiresConfiguredDatabase =
     process.env.NODE_ENV === 'production' || process.env.TITIPKAMPUS_DB_MODE === 'postgres';
   if (!process.env.DATABASE_URL && requiresConfiguredDatabase) {
@@ -130,9 +135,6 @@ async function startServer() {
 
   await db.ensureSeedData();
 
-  const app = express();
-  const server = createHttpServer(app);
-  const port = getPort();
   const realtimeClients = new Map<string, Set<Response>>();
 
   app.use(express.json({ limit: '1mb' }));
@@ -702,12 +704,12 @@ async function startServer() {
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        hmr: process.env.DISABLE_HMR === 'true' ? false : { server }
+        hmr: process.env.DISABLE_HMR === 'true' || !options.hmrServer ? false : { server: options.hmrServer }
       },
       appType: 'spa'
     });
     app.use(vite.middlewares);
-  } else {
+  } else if (options.serveFrontend ?? true) {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (_req: Request, res: Response) => {
@@ -715,10 +717,24 @@ async function startServer() {
     });
   }
 
-  await listenWithPortFallback(server, port);
+  return app;
 }
 
-startServer().catch((error) => {
-  console.error('[TitipKampus] Failed to start server:', error);
-  process.exit(1);
-});
+export async function createTitipKampusApp(options: Omit<CreateAppOptions, 'hmrServer'> = {}) {
+  const app = express();
+  return configureTitipKampusApp(app, options);
+}
+
+async function startServer() {
+  const app = express();
+  const server = createHttpServer(app);
+  await configureTitipKampusApp(app, { hmrServer: server, serveFrontend: true });
+  await listenWithPortFallback(server, getPort());
+}
+
+if (process.env.VERCEL !== '1') {
+  startServer().catch((error) => {
+    console.error('[TitipKampus] Failed to start server:', error);
+    process.exit(1);
+  });
+}
