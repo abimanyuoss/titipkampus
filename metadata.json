@@ -1,0 +1,6 @@
+{
+  "name": "TitipKampus",
+  "description": "Layanan lokal saling bantu antar-mahasiswa di lingkungan Universitas Muhammadiyah Purwokerto (UMP)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

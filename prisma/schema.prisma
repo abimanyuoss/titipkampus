@@ -1,0 +1,152 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ServiceType {
+  food
+  photocopy
+  laundry
+  ojek
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  DELIVERING
+  COMPLETED
+}
+
+enum ProviderStatus {
+  PENDING_VERIFICATION
+  APPROVED
+  REJECTED
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+}
+
+enum PaymentMethod {
+  COD
+  DIGITAL
+}
+
+enum PaymentStatus {
+  WAITING_PAYMENT
+  PAID
+  FAILED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  avatar       String?
+  memberStatus String   @default("Regular")
+  phone        String
+  passwordHash String
+  role         UserRole @default(STUDENT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders   Order[]    @relation("CustomerOrders")
+  provider Provider?
+  otpCodes OtpCode[]
+}
+
+model Provider {
+  id          String         @id @default(uuid())
+  userId      String         @unique
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  nim         String
+  faculty     String
+  ktmUrl      String
+  isOnline    Boolean        @default(false)
+  balance     Int            @default(0)
+  rating      Float          @default(5.0)
+  reviewCount Int            @default(0)
+  status      ProviderStatus @default(PENDING_VERIFICATION)
+  verifiedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  claimedOrders Order[]  @relation("ProviderOrders")
+  reviews       Review[]
+
+  @@index([status, isOnline])
+}
+
+model Order {
+  id               String      @id @default(uuid())
+  customerUserId   String
+  customer         User        @relation("CustomerOrders", fields: [customerUserId], references: [id], onDelete: Cascade)
+  providerId       String?
+  provider         Provider?   @relation("ProviderOrders", fields: [providerId], references: [id])
+  serviceType      ServiceType
+  sourceLocation   String
+  deliveryLocation String
+  details          String      @db.Text
+  fee              Int
+  discountAmount   Int         @default(0)
+  totalFee         Int         @default(0)
+  status           OrderStatus @default(PENDING)
+  paymentMethod    PaymentMethod @default(COD)
+  paymentStatus    PaymentStatus @default(WAITING_PAYMENT)
+  paymentReference String?
+  voucherCode      String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  review Review?
+
+  @@index([customerUserId])
+  @@index([providerId])
+  @@index([status, createdAt])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  orderId    String   @unique
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String   @db.Text
+  fromName   String
+  createdAt  DateTime @default(now())
+
+  @@index([providerId])
+}
+
+model Voucher {
+  code             String   @id
+  description      String
+  discountAmount   Int
+  minimumFee       Int      @default(0)
+  maxRedemptions   Int?
+  redemptionCount  Int      @default(0)
+  isActive         Boolean  @default(true)
+  expiresAt        DateTime?
+  createdAt        DateTime @default(now())
+}
+
+model OtpCode {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  codeHash  String
+  purpose   String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email, purpose])
+}
