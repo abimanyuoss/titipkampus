@@ -33,6 +33,7 @@ body {
   footer button {
     display: inline-flex;
     min-height: 40px;
+    min-width: 40px;
     align-items: center;
   }
 
