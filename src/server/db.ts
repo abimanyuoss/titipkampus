@@ -17,9 +17,9 @@ import type {
   ServiceType,
   User,
   Voucher
-} from '../types';
-import { InMemoryTitipKampusDB } from './memory-db';
-import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config';
+} from '../types.js';
+import { InMemoryTitipKampusDB } from './memory-db.js';
+import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config.js';
 
 const prisma = new PrismaClient();
 

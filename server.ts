@@ -4,9 +4,9 @@ import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 import express, { type Express, type Request, type Response } from 'express';
 import { createServer as createViteServer } from 'vite';
-import { clearSessionCookie, readSessionUserId, setSessionCookie } from './src/server/auth';
-import { db } from './src/server/db';
-import type { OrderStatus, PaymentMethod, ServiceType, User } from './src/types';
+import { clearSessionCookie, readSessionUserId, setSessionCookie } from './src/server/auth.js';
+import { db } from './src/server/db.js';
+import type { OrderStatus, PaymentMethod, ServiceType, User } from './src/types.js';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();

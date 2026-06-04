@@ -10,8 +10,8 @@ import type {
   ServiceType,
   User,
   Voucher
-} from '../types';
-import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config';
+} from '../types.js';
+import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config.js';
 
 type CreateOrderInput = {
   customerUserId: string;
