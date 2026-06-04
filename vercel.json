@@ -4,10 +4,5 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
-  "regions": ["sin1"],
-  "functions": {
-    "api/[...path].ts": {
-      "runtime": "nodejs22.x"
-    }
-  }
+  "regions": ["sin1"]
 }
