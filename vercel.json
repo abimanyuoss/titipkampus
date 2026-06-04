@@ -9,8 +9,5 @@
     "api/[...path].ts": {
       "runtime": "nodejs22.x"
     }
-  },
-  "env": {
-    "APP_URL": "@app-url"
   }
 }
