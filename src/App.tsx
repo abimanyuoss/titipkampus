@@ -696,13 +696,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* Mobile Logout */}
+          {/* Mobile Logout - Always visible on mobile, hidden on desktop */}
           <button
             onClick={handleLogout}
-            className="lg:hidden flex items-center gap-1.5 p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all cursor-pointer ml-2"
+            className="flex items-center gap-1.5 p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all cursor-pointer"
             aria-label="Keluar akun"
           >
             <LogOut className="w-4 h-4" />
+            <span className="text-xs font-bold hidden sm:inline">Keluar</span>
           </button>
         </header>
 
@@ -1207,6 +1208,17 @@ export default function App() {
                 <span className="text-[10px] font-bold">Pendapatan</span>
               </button>
             )}
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex flex-col items-center gap-1 p-2 rounded-lg transition-all text-slate-400 hover:text-rose-500"
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50">
+                <LogOut className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-bold">Keluar</span>
+            </button>
           </div>
         </nav>
 
