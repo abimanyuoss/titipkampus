@@ -29,16 +29,27 @@ export default function ProviderRegistration({ onSuccess, onCancel }: ProviderRe
     'Fakultas Agama Islam'
   ];
 
-  const handleSimulateUpload = (_e: React.ChangeEvent<HTMLInputElement>) => {
-    setUploading(true);
+  const handleSimulateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErr(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    // Simulate small latency for image upload
-    setTimeout(() => {
-      // Use standard simulated KTM placeholder
-      setKtmImage('https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=400&auto=format&fit=crop');
+    if (file.size > 5 * 1024 * 1024) {
+      setErr('Ukuran file maksimal 5MB.');
+      return;
+    }
+
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setKtmImage(reader.result as string);
       setUploading(false);
-    }, 1200);
+    };
+    reader.onerror = () => {
+      setErr('Gagal membaca file. Coba lagi.');
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRegister = async (e: React.FormEvent) => {

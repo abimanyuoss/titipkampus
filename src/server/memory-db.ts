@@ -472,6 +472,32 @@ export class InMemoryTitipKampusDB {
     };
   }
 
+  async cancelOrder(orderId: string, userId: string) {
+    const order = this.orders.get(orderId);
+    if (!order || order.customerUserId !== userId || order.status !== 'PENDING') return undefined;
+
+    order.status = 'CANCELLED';
+    order.updatedAt = new Date();
+    return this.toOrder(order);
+  }
+
+  async updateProfile(userId: string, data: { name?: string; phone?: string; avatar?: string }) {
+    const user = this.users.get(userId);
+    if (!user) return undefined;
+
+    if (data.name) {
+      user.name = data.name.trim();
+    }
+    if (data.phone) {
+      user.phone = data.phone.trim();
+    }
+    if (data.avatar) {
+      user.avatar = data.avatar.trim();
+    }
+    user.updatedAt = new Date();
+    return this.toUser(user);
+  }
+
   private upsertUser(input: Omit<StoredUser, 'createdAt' | 'updatedAt'>) {
     const existing = this.users.get(input.id);
     if (existing) {

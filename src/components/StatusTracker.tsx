@@ -1,4 +1,4 @@
-import { CheckCircle, Package, Star, User } from 'lucide-react';
+import { CheckCircle, Package, Star, User, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { Order, OrderStatus } from '../types';
 
@@ -10,6 +10,7 @@ interface StatusTrackerProps {
   onUpdateStatus: (orderId: string, nextStatus: OrderStatus) => void;
   onSubmitReview: (orderId: string, rating: number, comment: string) => void;
   onPayOrder?: (orderId: string) => void;
+  onCancelOrder?: (orderId: string) => void;
 }
 
 export default function StatusTracker({
@@ -19,7 +20,8 @@ export default function StatusTracker({
   mode,
   onUpdateStatus,
   onSubmitReview,
-  onPayOrder
+  onPayOrder,
+  onCancelOrder
 }: StatusTrackerProps) {
   const [rating, setRating] = useState<number>(5);
   const [comment, setComment] = useState<string>('');
@@ -142,6 +144,16 @@ export default function StatusTracker({
                             ? 'Antar Laundry'
                             : 'Ojek Kampus'}
                     </h4>
+                    {order.status === 'PENDING' && order.customerUserId === currentUserId && onCancelOrder && (
+                      <button
+                        type="button"
+                        onClick={() => onCancelOrder(order.id)}
+                        className="text-[9px] text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-0.5 rounded font-bold cursor-pointer transition-all flex items-center gap-1"
+                      >
+                        <XCircle className="w-3 h-3" />
+                        <span>Batal</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="text-left sm:text-right flex items-center gap-2">

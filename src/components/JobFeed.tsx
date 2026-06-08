@@ -1,5 +1,6 @@
-import { Bike, Check, Package, Printer, Shield, Utensils } from 'lucide-react';
-import type { Order } from '../types';
+import { ArrowUpDown, Bike, Check, Package, Printer, Shield, Utensils } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { Order, ServiceType } from '../types';
 
 interface JobFeedProps {
   orders: Order[];
@@ -8,14 +9,30 @@ interface JobFeedProps {
 }
 
 export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedProps) {
-  // Filter jobs that are currently available for courier pickup.
-  const availableJobs = orders.filter(
-    (job) =>
-      job.status === 'PENDING' &&
-      !job.providerId &&
-      job.customerUserId !== currentUserId &&
-      (job.paymentMethod === 'COD' || job.paymentStatus === 'PAID')
-  );
+  const [filterService, setFilterService] = useState<ServiceType | 'all'>('all');
+  const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high'>('default');
+
+  const availableJobs = useMemo(() => {
+    let jobs = orders.filter(
+      (job) =>
+        job.status === 'PENDING' &&
+        !job.providerId &&
+        job.customerUserId !== currentUserId &&
+        (job.paymentMethod === 'COD' || job.paymentStatus === 'PAID')
+    );
+
+    if (filterService !== 'all') {
+      jobs = jobs.filter((j) => j.serviceType === filterService);
+    }
+
+    if (sortBy === 'price-low') {
+      jobs = [...jobs].sort((a, b) => (a.totalFee || a.fee) - (b.totalFee || b.fee));
+    } else if (sortBy === 'price-high') {
+      jobs = [...jobs].sort((a, b) => (b.totalFee || b.fee) - (a.totalFee || a.fee));
+    }
+
+    return jobs;
+  }, [orders, currentUserId, filterService, sortBy]);
 
   const getServiceData = (type: string) => {
     switch (type) {
@@ -30,27 +47,67 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
     }
   };
 
+  const serviceFilters: { id: ServiceType | 'all'; label: string }[] = [
+    { id: 'all', label: 'Semua' },
+    { id: 'food', label: 'Makanan' },
+    { id: 'photocopy', label: 'Fotokopi' },
+    { id: 'laundry', label: 'Laundry' },
+    { id: 'ojek', label: 'Ojek' },
+  ];
+
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-card overflow-hidden">
-      <div className="p-3 sm:p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <h3 className="font-bold text-sm text-navy-dark flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 bg-[#119b50] rounded-full animate-ping relative">
-              <span className="absolute inset-0 bg-[#119b50] rounded-full animate-ping" />
+      <div className="p-3 sm:p-4 border-b border-slate-100 bg-slate-50">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-sm text-navy-dark flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 bg-[#119b50] rounded-full animate-ping relative">
+                <span className="absolute inset-0 bg-[#119b50] rounded-full animate-ping" />
+              </span>
+              Tugas Tersedia
+            </h3>
+            <span className="text-xs font-semibold px-2 py-0.5 bg-teal-light/20 text-teal rounded-full">
+              {availableJobs.length}
             </span>
-            Tugas Tersedia
-          </h3>
-          <span className="text-xs font-semibold px-2 py-0.5 bg-teal-light/20 text-teal rounded-full">
-            {availableJobs.length}
-          </span>
+          </div>
+          <span className="text-[10px] text-slate-400 font-medium hidden sm:block">UMP Purwokerto</span>
         </div>
-        <span className="text-[10px] text-slate-400 font-medium hidden sm:block">UMP Purwokerto</span>
+
+        {/* Filter & Sort Bar */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex gap-1 flex-wrap">
+            {serviceFilters.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilterService(f.id)}
+                className={`text-[10px] font-bold px-2 py-1 rounded-full transition-all cursor-pointer ${
+                  filterService === f.id
+                    ? 'bg-teal text-white'
+                    : 'bg-white text-slate-500 border border-slate-200 hover:border-teal/30 hover:text-teal'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex-1" />
+          <button
+            type="button"
+            onClick={() => setSortBy(sortBy === 'default' ? 'price-low' : sortBy === 'price-low' ? 'price-high' : 'default')}
+            className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-teal bg-white border border-slate-200 px-2 py-1 rounded-full transition-all cursor-pointer"
+          >
+            <ArrowUpDown className="w-3 h-3" />
+            <span>
+              {sortBy === 'default' ? 'Urutkan' : sortBy === 'price-low' ? 'Termurah' : 'Termahal'}
+            </span>
+          </button>
+        </div>
       </div>
 
       <div className="divide-y divide-slate-100 max-h-[400px] sm:max-h-[480px] overflow-y-auto">
         {availableJobs.length === 0 ? (
           <div className="p-6 sm:p-10 text-center text-slate-400 space-y-4">
-            {/* Animated empty state illustration */}
             <div className="relative w-20 h-20 mx-auto">
               <div className="absolute inset-0 bg-teal/5 rounded-full animate-pulse" />
               <div className="relative w-full h-full bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex items-center justify-center border border-slate-200">
@@ -61,11 +118,12 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
             <div>
               <p className="text-sm font-semibold text-slate-600 mb-1">Belum Ada Tugas Aktif</p>
               <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                Mahasiswa lainnya belum membuat pesanan baru atau semua tugas telah diklaim.
+                {filterService !== 'all'
+                  ? 'Tidak ada tugas dengan filter yang dipilih. Coba ubah filter.'
+                  : 'Mahasiswa lainnya belum membuat pesanan baru atau semua tugas telah diklaim.'}
               </p>
             </div>
 
-            {/* Action hint */}
             <div className="flex items-center justify-center gap-2">
               <span className="w-2 h-2 bg-slate-300 rounded-full animate-pulse" />
               <span className="text-xs text-slate-400">Tekan refresh untuk memperbarui</span>
@@ -75,14 +133,6 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
           availableJobs.map((job, index) => {
             const sd = getServiceData(job.serviceType);
             const Icon = sd.icon;
-
-            // Distance is an operational estimate for quick scanning.
-            const randomDistanceMap: Record<string, string> = {
-              'feed-item-1': '250m',
-              'feed-item-2': '600m',
-              'feed-item-3': '1.2km'
-            };
-            const distance = randomDistanceMap[job.id] || `${Math.floor(Math.random() * 800) + 150}m`;
 
             return (
               <div
@@ -101,7 +151,7 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
 
                     <div className="space-y-1 flex-grow min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-extrabold text-sm text-navy-dark group-hover:text-teal transition-colors line-clamp-1">
+                        <span className="font-extrabold text-sm text-navy-dark line-clamp-1">
                           {job.serviceType === 'food'
                             ? 'Beli Makanan'
                             : job.serviceType === 'photocopy'
@@ -110,8 +160,8 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
                                 ? 'Antar Laundry'
                                 : 'Ojek Kampus'}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded">
-                          ~{distance}
+                        <span className="text-[9px] text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded">
+                          #{job.id.slice(0, 4).toUpperCase()}
                         </span>
                       </div>
 

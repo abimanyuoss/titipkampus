@@ -49,6 +49,9 @@ coverage/
 prisma/*.db
 prisma/*.db-journal
 
+# CodeWhale
+.codewhale/
+
 # Misc
 *.local
 *.tmp

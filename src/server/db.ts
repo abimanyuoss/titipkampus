@@ -1,5 +1,6 @@
 import {
   PrismaClient,
+  $Enums,
   type Order as PrismaOrder,
   type Provider as PrismaProvider,
   type Review as PrismaReview,
@@ -168,6 +169,8 @@ type DatabaseDelegate = {
   getPendingProviders(): Promise<Provider[]>;
   moderateProvider(providerId: string, decision: 'APPROVED' | 'REJECTED'): Promise<Provider>;
   getAnalytics(): Promise<AnalyticsSummary>;
+  cancelOrder(orderId: string, userId: string): Promise<Order | undefined>;
+  updateProfile(userId: string, data: { name?: string; phone?: string; avatar?: string }): Promise<User | undefined>;
 };
 
 function shouldUseMemoryDatabase() {
@@ -481,7 +484,7 @@ export class TitipKampusDB {
       const saved = await tx.order.update({
         where: { id: orderId },
         data: {
-          status,
+          status: status as $Enums.OrderStatus,
           paymentStatus: status === 'COMPLETED' && order.paymentMethod === 'COD' ? 'PAID' : order.paymentStatus
         },
         include: { provider: true, customer: true }
@@ -624,6 +627,40 @@ export class TitipKampusDB {
       averageRating: Number((ratingAggregate._avg.rating || 0).toFixed(1))
     };
   }
+
+  async cancelOrder(orderId: string, userId: string): Promise<Order | undefined> {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { provider: true, customer: true }
+    });
+    if (!order || order.customerUserId !== userId || order.status !== 'PENDING') return undefined;
+
+    const cancelled = await prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'CANCELLED' as $Enums.OrderStatus },
+      include: { provider: true, customer: true }
+    });
+    return toOrder(cancelled);
+  }
+
+  async updateProfile(
+    userId: string,
+    data: { name?: string; phone?: string; avatar?: string }
+  ): Promise<User | undefined> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return undefined;
+
+    const updateData: Record<string, string> = {};
+    if (data.name) updateData.name = data.name.trim();
+    if (data.phone) updateData.phone = data.phone.trim();
+    if (data.avatar) updateData.avatar = data.avatar.trim();
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: updateData
+    });
+    return toUser(updated);
+  }
 }
 
 class ResilientTitipKampusDB {
@@ -733,6 +770,14 @@ class ResilientTitipKampusDB {
 
   async getAnalytics() {
     return this.delegate.getAnalytics();
+  }
+
+  async cancelOrder(orderId: string, userId: string) {
+    return this.delegate.cancelOrder(orderId, userId);
+  }
+
+  async updateProfile(userId: string, data: { name?: string; phone?: string; avatar?: string }) {
+    return this.delegate.updateProfile(userId, data);
   }
 }
 

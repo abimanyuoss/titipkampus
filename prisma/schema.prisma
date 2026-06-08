@@ -19,6 +19,7 @@ enum OrderStatus {
   ACCEPTED
   DELIVERING
   COMPLETED
+  CANCELLED
 }
 
 enum ProviderStatus {

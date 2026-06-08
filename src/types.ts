@@ -1,6 +1,6 @@
 export type ServiceType = 'food' | 'photocopy' | 'laundry' | 'ojek';
 
-export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'DELIVERING' | 'COMPLETED';
+export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'DELIVERING' | 'COMPLETED' | 'CANCELLED';
 
 export type ProviderStatus = 'PENDING_VERIFICATION' | 'APPROVED' | 'REJECTED';
 export type UserRole = 'STUDENT' | 'ADMIN';

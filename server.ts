@@ -354,6 +354,22 @@ async function configureTitipKampusApp(app: Express, options: CreateAppOptions =
     res.json({ user, provider: provider || null });
   });
 
+  app.put('/api/profile', async (req: Request, res: Response) => {
+    const user = await getAuthenticatedUser(req, res);
+    if (!user) return;
+
+    try {
+      const { name, phone, avatar } = req.body as Record<string, string>;
+      const updated = await db.updateProfile(user.id, { name, phone, avatar });
+      if (!updated) {
+        return res.status(400).json({ error: 'Gagal memperbarui profil.' });
+      }
+      res.json({ success: true, user: updated });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message || 'Gagal memperbarui profil.' });
+    }
+  });
+
   app.get('/api/orders', async (req: Request, res: Response) => {
     const user = await getAuthenticatedUser(req, res);
     if (!user) return;
@@ -553,6 +569,26 @@ async function configureTitipKampusApp(app: Express, options: CreateAppOptions =
       const updatedOrder = await db.updateOrderStatus(id, status);
       broadcast({ type: 'order.status', message: `Status pesanan berubah menjadi ${status}.`, data: updatedOrder });
       res.json({ success: true, order: updatedOrder });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post('/api/orders/:id/cancel', async (req: Request, res: Response) => {
+    const user = await getAuthenticatedUser(req, res);
+    if (!user) return;
+
+    try {
+      const { id } = req.params;
+      const order = await db.cancelOrder(id, user.id);
+      if (!order) {
+        return res.status(400).json({
+          error: 'Pesanan tidak dapat dibatalkan. Pastikan pesanan masih berstatus PENDING dan Anda adalah pemesan.'
+        });
+      }
+
+      broadcast({ type: 'order.cancelled', message: 'Pesanan dibatalkan oleh pemesan.', data: order });
+      res.json({ success: true, order });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }

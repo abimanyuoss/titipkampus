@@ -29,7 +29,8 @@ const statusLabels: Record<Order['status'], string> = {
   PENDING: 'Menunggu Kurir',
   ACCEPTED: 'Diklaim',
   DELIVERING: 'Diantar',
-  COMPLETED: 'Selesai'
+  COMPLETED: 'Selesai',
+  CANCELLED: 'Dibatalkan'
 };
 
 function formatCurrency(value: number) {

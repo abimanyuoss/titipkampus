@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   Bell,
   Bike,
   Clock,
@@ -24,10 +23,13 @@ import AiAssistant from './components/AiAssistant';
 import AuthScreen from './components/AuthScreen';
 import JobFeed from './components/JobFeed';
 import LandingPage from './components/LandingPage';
+import Modal from './components/Modal';
 import OrderForm from './components/OrderForm';
+import ProfileEdit from './components/ProfileEdit';
 import ProviderRegistration from './components/ProviderRegistration';
 import ServiceSelector from './components/ServiceSelector';
 import StatusTracker from './components/StatusTracker';
+import { useToast } from './components/Toast';
 import type { Order, OrderStatus, PaymentMethod, Provider, ServiceType, User } from './types';
 
 // Constants
@@ -59,11 +61,23 @@ export default function App() {
   // Loading & logs
   const [loading, setLoading] = useState(true);
   const [submittingOrder, setSubmittingOrder] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
   const [notifications, setNotifications] = useState<string[]>([
     'Selamat bergabung di TitipKampus UMP!',
     'Sistem operasional aktif: pelacakan real-time, OTP pembayaran, voucher, dan COD.'
   ]);
+
+  // Toast notifications
+  const { addToast } = useToast();
+
+  // Modal states
+  const [confirmModal, setConfirmModal] = useState<{
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  // Profile editing
+  const [editingProfile, setEditingProfile] = useState(false);
 
   // Landing page state
   const [showLanding, setShowLanding] = useState(true);
@@ -151,7 +165,6 @@ export default function App() {
     voucherCode?: string;
   }) => {
     setSubmittingOrder(true);
-    setAlertMessage(null);
 
     try {
       const response = await fetch('/api/orders', {
@@ -166,13 +179,12 @@ export default function App() {
       }
 
       if (result.success) {
-        setAlertMessage({
-          text:
-            orderData.paymentMethod === 'DIGITAL'
-              ? 'Pesanan digital dibuat. Selesaikan verifikasi OTP agar pesanan dapat diproses kurir.'
-              : 'Pesanan berhasil diterbitkan. Sistem sedang menunggu kurir aktif mengambil tugas.',
-          type: 'success'
-        });
+        addToast(
+          orderData.paymentMethod === 'DIGITAL'
+            ? 'Pesanan digital dibuat. Selesaikan verifikasi OTP agar pesanan dapat diproses kurir.'
+            : 'Pesanan berhasil diterbitkan. Sistem sedang menunggu kurir aktif mengambil tugas.',
+          'success'
+        );
 
         // Push local alert notification
         setNotifications((prev) => [
@@ -188,7 +200,7 @@ export default function App() {
         setActiveTab('active');
       }
     } catch (e: any) {
-      setAlertMessage({ text: e.message || 'Terjadi kesalahan sistem', type: 'error' });
+      addToast(e.message || 'Terjadi kesalahan sistem', 'error');
     } finally {
       setSubmittingOrder(false);
     }
@@ -197,7 +209,6 @@ export default function App() {
   // Handle courier claims order
   const handleClaimJob = async (orderId: string) => {
     if (!currentProvider) return;
-    setAlertMessage(null);
 
     try {
       const response = await fetch(`/api/orders/${orderId}/claim`, {
@@ -212,13 +223,13 @@ export default function App() {
       }
 
       if (result.success) {
-        setAlertMessage({ text: 'Tugas berhasil diklaim. Silakan menuju lokasi penjemputan.', type: 'success' });
+        addToast('Tugas berhasil diklaim. Silakan menuju lokasi penjemputan.', 'success');
         setNotifications((prev) => [`Anda mengklaim tugas baru di: ${result.order.sourceLocation}`, ...prev]);
         await fetchState();
         setActiveTab('active');
       }
     } catch (e: any) {
-      setAlertMessage({ text: e.message || 'Gagal memproses klaim', type: 'error' });
+      addToast(e.message || 'Gagal memproses klaim', 'error');
     }
   };
 
@@ -233,10 +244,7 @@ export default function App() {
 
       if (response.ok) {
         await response.json();
-        setAlertMessage({
-          text: `Status pesanan berhasil ditingkatkan menjadi: ${nextStatus}`,
-          type: 'success'
-        });
+        addToast(`Status pesanan berhasil ditingkatkan menjadi: ${nextStatus}`, 'success');
         setNotifications((prev) => [
           `Status pesanan #${orderId.slice(0, 4).toUpperCase()} diperbarui ke ${nextStatus}`,
           ...prev
@@ -246,6 +254,27 @@ export default function App() {
     } catch (e) {
       console.error('Error transitioning order status from workspace', e);
     }
+  };
+
+  // Cancel own PENDING order
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}/cancel`, { method: 'POST' });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Gagal membatalkan pesanan.');
+
+      addToast('Pesanan berhasil dibatalkan.', 'info');
+      await fetchState();
+    } catch (e: any) {
+      addToast(e.message || 'Gagal membatalkan pesanan.', 'error');
+    }
+  };
+
+  // Update profile after editing
+  const handleProfileSave = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    setEditingProfile(false);
+    addToast('Profil berhasil diperbarui.', 'success');
   };
 
   // Submit Rating & Review
@@ -258,7 +287,7 @@ export default function App() {
       });
 
       if (response.ok) {
-        setAlertMessage({ text: 'Terima kasih atas kontribusi ulasan Anda!', type: 'success' });
+        addToast('Terima kasih atas kontribusi ulasan Anda!', 'success');
         await fetchState();
       }
     } catch (e) {
@@ -269,21 +298,18 @@ export default function App() {
   const openStudentDashboard = () => {
     setMode('user');
     setActiveTab('dashboard');
-    setAlertMessage({
-      text: 'Anda kembali ke dashboard mahasiswa tanpa keluar akun.',
-      type: 'info'
-    });
+    addToast('Anda kembali ke dashboard mahasiswa tanpa keluar akun.', 'info');
   };
 
   const openProviderDashboard = () => {
     setMode('provider');
     setActiveTab('dashboard');
-    setAlertMessage({
-      text: currentProvider
+    addToast(
+      currentProvider
         ? 'Anda beralih ke dashboard kurir dalam akun yang sama.'
         : 'Lengkapi pendaftaran kurir dari akun mahasiswa yang sedang aktif.',
-      type: 'info'
-    });
+      'info'
+    );
   };
 
   // Complete courier registration successfully.
@@ -291,10 +317,7 @@ export default function App() {
     setCurrentProvider(newProvider);
     setMode('provider');
     setActiveTab('dashboard');
-    setAlertMessage({
-      text: 'Berkas kurir terkirim. Akun akan aktif setelah admin memverifikasi KTM dan data kampus.',
-      type: 'success'
-    });
+    addToast('Berkas kurir terkirim. Akun akan aktif setelah admin memverifikasi KTM dan data kampus.', 'success');
     setNotifications((prev) => ['Pendaftaran kurir masuk antrean verifikasi admin.', ...prev]);
   };
 
@@ -317,20 +340,28 @@ export default function App() {
       const payData = await payResponse.json();
       if (!payResponse.ok) throw new Error(payData.error || 'Pembayaran gagal.');
 
-      setAlertMessage({ text: 'Pembayaran digital terverifikasi. Pesanan siap diproses kurir.', type: 'success' });
+      addToast('Pembayaran digital terverifikasi. Pesanan siap diproses kurir.', 'success');
       await fetchState();
     } catch (e: any) {
-      setAlertMessage({ text: e.message || 'Pembayaran gagal.', type: 'error' });
+      addToast(e.message || 'Pembayaran gagal.', 'error');
     }
   };
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    setCurrentUser(null);
-    setCurrentProvider(null);
-    setOrders([]);
-    setMode('user');
-    setActiveTab('dashboard');
+  const handleLogout = () => {
+    setConfirmModal({
+      title: 'Konfirmasi Keluar',
+      description: 'Anda akan keluar dari akun. Pesanan yang sedang berlangsung tetap dapat diproses kurir.',
+      onConfirm: async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        setCurrentUser(null);
+        setCurrentProvider(null);
+        setOrders([]);
+        setMode('user');
+        setActiveTab('dashboard');
+        setConfirmModal(null);
+        addToast('Anda telah keluar dari akun.', 'info');
+      }
+    });
   };
 
   // Apply assisted order detail outputs safely.
@@ -343,7 +374,7 @@ export default function App() {
   }) => {
     setSelectedService(data.serviceType);
     setAiPreset(data);
-    setAlertMessage({ text: 'Rincian pesanan berhasil disusun ke dalam form.', type: 'info' });
+    addToast('Rincian pesanan berhasil disusun ke dalam form.', 'info');
   };
 
   // Filter lists based on search string
@@ -575,19 +606,26 @@ export default function App() {
         {/* User Context & Footer switcher */}
         <div className="space-y-4 pt-4 border-t border-slate-800 text-left">
           {currentUser && (
-            <div className="flex items-center gap-3 p-2 bg-slate-900/60 rounded-xl border border-slate-800">
+            <button
+              onClick={() => {
+                setEditingProfile(true);
+                setActiveTab('dashboard');
+              }}
+              className="flex items-center gap-3 p-2 bg-slate-900/60 rounded-xl border border-slate-800 w-full text-left hover:bg-slate-800/60 transition-colors cursor-pointer"
+            >
               <img
                 src={currentUser.avatar}
                 alt="Avatar"
                 className="w-10 h-10 object-cover rounded-full border border-teal"
               />
-              <div className="text-xs">
+              <div className="text-xs flex-grow">
                 <span className="font-extrabold text-slate-100 block">{currentUser.name}</span>
                 <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full mt-0.5 inline-block">
                   {currentUser.memberStatus} Member
                 </span>
               </div>
-            </div>
+              <span className="text-[9px] text-teal-light font-semibold">Edit ▸</span>
+            </button>
           )}
 
           <button
@@ -706,37 +744,44 @@ export default function App() {
           </div>
         </header>
 
-        {/* 3. ALERTS CARDS FEED */}
-        {alertMessage && (
-          <div className="px-4 sm:px-6 lg:px-8 pt-4 animate-slide-down">
-            <div
-              className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-2.5 text-xs text-left shadow-sm ${
-                alertMessage.type === 'success'
-                  ? 'bg-emerald-50 border-emerald-200 text-[#005227]'
-                  : alertMessage.type === 'error'
-                    ? 'bg-rose-50 border-rose-100 text-rose-800'
-                    : 'bg-blue-50 border-blue-200 text-blue-800'
-              }`}
-            >
-              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0" />
-              <div className="space-y-0.5">
-                <span className="font-bold block uppercase text-[10px] sm:text-xs">
-                  {alertMessage.type === 'success'
-                    ? 'Sukses'
-                    : alertMessage.type === 'error'
-                      ? 'Perlu Tindak Lanjut'
-                      : 'Informasi'}
-                </span>
-                <p className="text-xs sm:text-sm">{alertMessage.text}</p>
-              </div>
-            </div>
-          </div>
+        {/* 3. CONFIRMATION MODAL */}
+        {confirmModal && (
+          <Modal
+            open={true}
+            onClose={() => setConfirmModal(null)}
+            title={confirmModal.title}
+            description={confirmModal.description}
+            footer={
+              <>
+                <button
+                  onClick={() => setConfirmModal(null)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  className="px-4 py-2 bg-teal text-white rounded-lg text-xs font-semibold hover:bg-teal-dark cursor-pointer"
+                >
+                  Konfirmasi
+                </button>
+              </>
+            }
+          >
+            <p className="text-sm text-slate-600">Apakah Anda yakin ingin melanjutkan?</p>
+          </Modal>
         )}
 
         {/* 4. MASTER PANEL WRAPPERS */}
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-grow">
           {/* Active View Router Switcher */}
-          {activeTab === 'dashboard' && (
+          {editingProfile && currentUser ? (
+            <ProfileEdit
+              user={currentUser}
+              onSave={handleProfileSave}
+              onBack={() => setEditingProfile(false)}
+            />
+          ) : activeTab === 'dashboard' && (
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 stagger-enter">
               {/* --- PERSPECTIVE A: USER MODE DASHBOARD --- */}
               {mode === 'user' && (
@@ -853,6 +898,7 @@ export default function App() {
                         onUpdateStatus={handleUpdateOrderStatus}
                         onSubmitReview={handleSubmitReview}
                         onPayOrder={handlePayOrder}
+                        onCancelOrder={handleCancelOrder}
                       />
                     </div>
 
@@ -954,6 +1000,7 @@ export default function App() {
                         onUpdateStatus={handleUpdateOrderStatus}
                         onSubmitReview={handleSubmitReview}
                         onPayOrder={handlePayOrder}
+                        onCancelOrder={handleCancelOrder}
                       />
                     </div>
                   </div>
@@ -999,6 +1046,7 @@ export default function App() {
                 onUpdateStatus={handleUpdateOrderStatus}
                 onSubmitReview={handleSubmitReview}
                 onPayOrder={handlePayOrder}
+                onCancelOrder={handleCancelOrder}
               />
             </div>
           )}
@@ -1051,7 +1099,7 @@ export default function App() {
                         </div>
                         <div className="space-y-0.5 flex-grow min-w-0">
                           <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 px-2 py-0.5 rounded uppercase inline-block">
-                            Selesai COD
+                            {hist.paymentMethod === 'DIGITAL' ? 'Selesai Digital' : 'Selesai COD'}
                           </span>
                           <p className="font-extrabold text-navy-dark text-xs sm:text-sm mt-1 truncate-2">
                             {hist.serviceType === 'food'
