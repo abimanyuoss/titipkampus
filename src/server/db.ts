@@ -363,10 +363,18 @@ export class TitipKampusDB {
       const voucher = await prisma.voucher.findUnique({
         where: { code: orderData.voucherCode.trim().toUpperCase() }
       });
-      const expired = voucher?.expiresAt ? voucher.expiresAt < new Date() : false;
-      const maxedOut = voucher?.maxRedemptions ? voucher.redemptionCount >= voucher.maxRedemptions : false;
-      if (!voucher?.isActive || expired || maxedOut || fee < voucher.minimumFee) {
-        throw new Error('Voucher tidak valid atau belum memenuhi minimum transaksi.');
+      if (!voucher) {
+        throw new Error('Kode voucher tidak ditemukan.');
+      }
+      const expired = voucher.expiresAt ? voucher.expiresAt < new Date() : false;
+      const maxedOut = voucher.maxRedemptions ? voucher.redemptionCount >= voucher.maxRedemptions : false;
+      if (!voucher.isActive || expired || maxedOut) {
+        throw new Error('Voucher sudah tidak aktif atau kedaluwarsa.');
+      }
+      if (fee < voucher.minimumFee) {
+        throw new Error(
+          `Voucher ini hanya berlaku untuk minimum transaksi Rp ${voucher.minimumFee.toLocaleString('id-ID')}.`
+        );
       }
       discountAmount = Math.min(fee, voucher.discountAmount);
       voucherCode = voucher.code;
