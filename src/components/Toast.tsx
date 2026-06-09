@@ -68,7 +68,7 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: str
   const colors = {
     success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
     error: 'border-rose-200 bg-rose-50 text-rose-800',
-    info: 'border-blue-200 bg-blue-50 text-blue-800',
+    info: 'border-blue-200 bg-blue-50 text-blue-800'
   };
   const Icon = icons[toast.type];
 

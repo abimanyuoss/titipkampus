@@ -34,7 +34,7 @@ export default function OrderForm({
   const [destination, setDestination] = useState(initialDestination);
   const [details, setDetails] = useState(initialDetails);
   const [fee, setFee] = useState(initialFee);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
+  const paymentMethod: PaymentMethod = 'COD';
   const [voucherCode, setVoucherCode] = useState('');
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -232,24 +232,11 @@ export default function OrderForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5 text-left">
           <label className="text-[11px] sm:text-xs font-bold text-navy-dark uppercase tracking-wider block">
-            Pembayaran
+            Metode Pembayaran
           </label>
-          <div className="grid grid-cols-2 gap-2">
-            {(['COD', 'DIGITAL'] as PaymentMethod[]).map((method) => (
-              <button
-                type="button"
-                key={method}
-                onClick={() => setPaymentMethod(method)}
-                className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
-                  paymentMethod === method
-                    ? 'bg-teal text-white border-teal'
-                    : 'bg-white text-slate-500 border-slate-200 hover:border-teal/40'
-                }`}
-              >
-                <CreditCard className="w-3.5 h-3.5" />
-                <span>{method === 'COD' ? 'COD' : 'Digital'}</span>
-              </button>
-            ))}
+          <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm font-bold text-slate-700">
+            <CreditCard className="w-4 h-4 text-teal" />
+            <span>COD (Bayar Tunai ke Kurir)</span>
           </div>
         </div>
 

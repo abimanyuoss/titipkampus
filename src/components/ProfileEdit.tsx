@@ -45,7 +45,7 @@ export default function ProfileEdit({ user, onSave, onBack }: ProfileEditProps) 
       const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), avatar }),
+        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), avatar })
       });
 
       const result = await response.json();
@@ -81,7 +81,11 @@ export default function ProfileEdit({ user, onSave, onBack }: ProfileEditProps) 
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
               {avatar ? (
-                <img src={avatar} alt="Avatar" className="w-20 h-20 rounded-full object-cover border-4 border-slate-100" />
+                <img
+                  src={avatar}
+                  alt="Avatar"
+                  className="w-20 h-20 rounded-full object-cover border-4 border-slate-100"
+                />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center border-4 border-slate-100">
                   <UserRound className="w-10 h-10 text-slate-400" />
@@ -97,7 +101,10 @@ export default function ProfileEdit({ user, onSave, onBack }: ProfileEditProps) 
 
           {/* Name */}
           <div className="space-y-1.5 text-left">
-            <label className="text-[11px] font-bold text-navy-dark uppercase tracking-wider block" htmlFor="profile-name">
+            <label
+              className="text-[11px] font-bold text-navy-dark uppercase tracking-wider block"
+              htmlFor="profile-name"
+            >
               Nama Lengkap
             </label>
             <input

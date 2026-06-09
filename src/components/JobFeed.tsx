@@ -52,7 +52,7 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
     { id: 'food', label: 'Makanan' },
     { id: 'photocopy', label: 'Fotokopi' },
     { id: 'laundry', label: 'Laundry' },
-    { id: 'ojek', label: 'Ojek' },
+    { id: 'ojek', label: 'Ojek' }
   ];
 
   return (
@@ -94,13 +94,13 @@ export default function JobFeed({ orders, currentUserId, onClaimJob }: JobFeedPr
           <div className="flex-1" />
           <button
             type="button"
-            onClick={() => setSortBy(sortBy === 'default' ? 'price-low' : sortBy === 'price-low' ? 'price-high' : 'default')}
+            onClick={() =>
+              setSortBy(sortBy === 'default' ? 'price-low' : sortBy === 'price-low' ? 'price-high' : 'default')
+            }
             className="flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-teal bg-white border border-slate-200 px-2 py-1 rounded-full transition-all cursor-pointer"
           >
             <ArrowUpDown className="w-3 h-3" />
-            <span>
-              {sortBy === 'default' ? 'Urutkan' : sortBy === 'price-low' ? 'Termurah' : 'Termahal'}
-            </span>
+            <span>{sortBy === 'default' ? 'Urutkan' : sortBy === 'price-low' ? 'Termurah' : 'Termahal'}</span>
           </button>
         </div>
       </div>

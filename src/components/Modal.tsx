@@ -38,6 +38,8 @@ export default function Modal({ open, onClose, title, description, children, foo
       aria-modal="true"
       aria-labelledby="modal-title"
     >
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: ignore overlay click */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: ignore overlay click */}
       <div ref={overlayRef} className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full animate-spring">
         <div className="flex items-start justify-between p-5 border-b border-slate-100">

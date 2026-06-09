@@ -1,6 +1,6 @@
 import {
+  type $Enums,
   PrismaClient,
-  $Enums,
   type Order as PrismaOrder,
   type Provider as PrismaProvider,
   type Review as PrismaReview,

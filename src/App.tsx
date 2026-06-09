@@ -776,263 +776,263 @@ export default function App() {
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-grow">
           {/* Active View Router Switcher */}
           {editingProfile && currentUser ? (
-            <ProfileEdit
-              user={currentUser}
-              onSave={handleProfileSave}
-              onBack={() => setEditingProfile(false)}
-            />
-          ) : activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 stagger-enter">
-              {/* --- PERSPECTIVE A: USER MODE DASHBOARD --- */}
-              {mode === 'user' && (
-                <>
-                  {/* Left Column (Forms and assisted order details) */}
-                  <div className="col-span-1 xl:col-span-7 space-y-4 sm:space-y-6">
-                    <div className="bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden animate-slide-up">
-                      {/* Gradient card wrapper */}
-                      <div className="p-4 sm:p-6 bg-navy text-white text-left relative overflow-hidden">
-                        <div className="absolute -right-10 -bottom-10 opacity-10">
-                          <Sliders className="w-32 h-32 sm:w-48 sm:h-48" />
-                        </div>
-                        <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">Titip Apa Hari Ini di UMP?</h2>
-                        <p className="text-[11px] sm:text-xs text-slate-300 mt-1 max-w-md">
-                          Butuh bantuan titip beli soto kantin teknik, print modul kopma, laundry kiloan, atau ojek ke
-                          gerbang? Teman mahasiswa aktif UMP siap membantumu kapan saja!
-                        </p>
-                      </div>
-
-                      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                        {/* 4 core service selector tabs */}
-                        <ServiceSelector
-                          selectedService={selectedService}
-                          onSelectService={(s) => {
-                            setSelectedService(s);
-                            setAiPreset(null);
-                          }}
-                        />
-
-                        {/* Automated order assistance */}
-                        <div className="border-t border-slate-100 pt-4 sm:pt-6">
-                          <AiAssistant onApplyPreset={handleApplyAiPreset} />
-                        </div>
-
-                        {/* Order Placement form */}
-                        <div className="border-t border-slate-150 pt-4 sm:pt-6">
-                          <div className="mb-4 text-left">
-                            <h4 className="font-extrabold text-sm text-navy-dark tracking-tight">
-                              Form Rincian Layanan ({selectedService.toUpperCase()})
-                            </h4>
-                            <p className="text-[11px] text-slate-400">
-                              Sesuaikan lokasi dan biaya jika dirasa kurang pas.
-                            </p>
+            <ProfileEdit user={currentUser} onSave={handleProfileSave} onBack={() => setEditingProfile(false)} />
+          ) : (
+            activeTab === 'dashboard' && (
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 stagger-enter">
+                {/* --- PERSPECTIVE A: USER MODE DASHBOARD --- */}
+                {mode === 'user' && (
+                  <>
+                    {/* Left Column (Forms and assisted order details) */}
+                    <div className="col-span-1 xl:col-span-7 space-y-4 sm:space-y-6">
+                      <div className="bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden animate-slide-up">
+                        {/* Gradient card wrapper */}
+                        <div className="p-4 sm:p-6 bg-navy text-white text-left relative overflow-hidden">
+                          <div className="absolute -right-10 -bottom-10 opacity-10">
+                            <Sliders className="w-32 h-32 sm:w-48 sm:h-48" />
                           </div>
-                          <OrderForm
-                            serviceType={selectedService}
-                            initialSource={aiPreset?.sourceLocation}
-                            initialDestination={aiPreset?.deliveryLocation}
-                            initialDetails={aiPreset?.details}
-                            initialFee={aiPreset?.fee}
-                            onSubmit={handlePlaceOrder}
-                            submitting={submittingOrder}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Jaminan Trust Banner */}
-                    <div
-                      className="bg-gradient-to-r from-teal-light/20 to-emerald-light/5 border border-teal/10 rounded-xl p-4 sm:p-5 text-left flex items-start gap-4 animate-slide-up"
-                      style={{ animationDelay: '100ms' }}
-                    >
-                      <div className="w-10 h-10 bg-teal text-white rounded-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                        <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </div>
-                      <div className="space-y-1 text-slate-700">
-                        <h4 className="font-bold text-xs uppercase tracking-wider text-navy-dark">
-                          Perlindungan Mahasiswa UMP
-                        </h4>
-                        <p className="text-xs leading-relaxed text-slate-500">
-                          Setiap penukaran transaksi COD dan pengantaran diawasi secara internal. Jika barang hilang,
-                          tidak sampai, atau terjadi pembatalan sepihak, silakan laporkan ke helpdesk Kampus.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column (Instructions & Quick Job Tracker list) */}
-                  <div className="col-span-1 xl:col-span-5 space-y-4 sm:space-y-6">
-                    <div
-                      className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 text-left space-y-3 shadow-card animate-slide-up"
-                      style={{ animationDelay: '50ms' }}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                            Status Kurir {currentUser.name}
-                          </span>
-                          <h4 className="font-extrabold text-[#000c24] text-sm">Akun Kurir Kampus</h4>
-                        </div>
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${courierStatusView.badgeClass}`}
-                        >
-                          {courierStatusView.label}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 leading-relaxed">{courierStatusView.description}</p>
-                      <button
-                        onClick={openProviderDashboard}
-                        className="w-full py-2.5 px-4 bg-teal hover:bg-teal-dark active:scale-[0.98] text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex justify-center items-center gap-1.5"
-                      >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        <span>{courierStatusView.action}</span>
-                      </button>
-                    </div>
-
-                    {/* Active Order Progress Quick list */}
-                    <div className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
-                      <StatusTracker
-                        orders={filteredOrders}
-                        currentUserId={currentUser?.id || ''}
-                        providerId={currentProvider?.id}
-                        mode="user"
-                        onUpdateStatus={handleUpdateOrderStatus}
-                        onSubmitReview={handleSubmitReview}
-                        onPayOrder={handlePayOrder}
-                        onCancelOrder={handleCancelOrder}
-                      />
-                    </div>
-
-                    {/* Operational guidelines card */}
-                    <div
-                      className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 text-left space-y-3 shadow-card animate-slide-up"
-                      style={{ animationDelay: '150ms' }}
-                    >
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                        Petunjuk Fitur COD
-                      </span>
-                      <h4 className="font-extrabold text-[#000c24] text-xs">Aturan Main Layanan P2P TitipKampus</h4>
-                      <ol className="list-decimal list-inside text-xs text-slate-600 leading-relaxed space-y-2 font-sans">
-                        <li>
-                          <strong>Konfirmasi Detail:</strong> Hubungi kurir untuk memastikan lokasi, barang, dan nominal
-                          transaksi.
-                        </li>
-                        <li>
-                          <strong>Siapkan Nominal COD:</strong> Pastikan uang tunai sesuai total yang tertera di form.
-                        </li>
-                        <li>
-                          <strong>Konfirmasi Selesai:</strong> Jangan lupa tekan tombol "Selesai" jika barang sudah Anda
-                          terima dengan selamat!
-                        </li>
-                      </ol>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* --- PERSPECTIVE B: COURIER MODE DASHBOARD --- */}
-              {mode === 'provider' && currentProvider && currentProvider.status === 'APPROVED' && (
-                <>
-                  {/* Left Column (Claimable Job feeds) */}
-                  <div className="col-span-1 xl:col-span-7 space-y-4 sm:space-y-6">
-                    <div className="flex items-center justify-between gap-4 animate-slide-up">
-                      <div className="text-left">
-                        <h2 className="text-base sm:text-lg font-extrabold text-navy-dark flex items-center gap-1.5">
-                          Tugas Pengantaran Terbuka UMP
-                          <span className="w-2 h-2 bg-emerald-action rounded-full animate-ping" />
-                        </h2>
-                        <p className="text-xs text-slate-500 hidden sm:block">
-                          Pilihlah salah satu tugas di bawah ini untuk Anda klaim dan antarkan.
-                        </p>
-                      </div>
-                      <button
-                        onClick={fetchState}
-                        className="p-2 sm:p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-500 cursor-pointer transition-colors shrink-0"
-                        title="Perbarui daftar tugas"
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="animate-slide-up" style={{ animationDelay: '50ms' }}>
-                      <JobFeed orders={filteredOrders} currentUserId={currentUser.id} onClaimJob={handleClaimJob} />
-                    </div>
-                  </div>
-
-                  {/* Right Column (Courier Status indicators & claimed active maps) */}
-                  <div className="col-span-1 xl:col-span-5 space-y-4 sm:space-y-6">
-                    {/* Courier current active metrics bar */}
-                    <div
-                      className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up"
-                      style={{ animationDelay: '100ms' }}
-                    >
-                      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 text-left shadow-card">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1">
-                          Dompet Kurir
-                        </span>
-                        <p className="text-lg sm:text-xl font-extrabold text-[#119b50]">
-                          Rp {Number(currentProvider.balance).toLocaleString('id-ID')}
-                        </p>
-                        <span className="text-[9px] text-[#119b50]/80 block mt-1 font-bold">Siap dicairkan</span>
-                      </div>
-                      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 text-left shadow-card">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1">
-                          Rating Anda
-                        </span>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <p className="text-lg sm:text-xl font-extrabold text-navy-dark">
-                            {currentProvider.rating || '5.0'}
+                          <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">
+                            Titip Apa Hari Ini di UMP?
+                          </h2>
+                          <p className="text-[11px] sm:text-xs text-slate-300 mt-1 max-w-md">
+                            Butuh bantuan titip beli soto kantin teknik, print modul kopma, laundry kiloan, atau ojek ke
+                            gerbang? Teman mahasiswa aktif UMP siap membantumu kapan saja!
                           </p>
-                          <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                         </div>
-                        <span className="text-[9px] text-slate-400 block mt-1">
-                          {currentProvider.reviewCount} ulasan
-                        </span>
+
+                        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                          {/* 4 core service selector tabs */}
+                          <ServiceSelector
+                            selectedService={selectedService}
+                            onSelectService={(s) => {
+                              setSelectedService(s);
+                              setAiPreset(null);
+                            }}
+                          />
+
+                          {/* Automated order assistance */}
+                          <div className="border-t border-slate-100 pt-4 sm:pt-6">
+                            <AiAssistant onApplyPreset={handleApplyAiPreset} />
+                          </div>
+
+                          {/* Order Placement form */}
+                          <div className="border-t border-slate-150 pt-4 sm:pt-6">
+                            <div className="mb-4 text-left">
+                              <h4 className="font-extrabold text-sm text-navy-dark tracking-tight">
+                                Form Rincian Layanan ({selectedService.toUpperCase()})
+                              </h4>
+                              <p className="text-[11px] text-slate-400">
+                                Sesuaikan lokasi dan biaya jika dirasa kurang pas.
+                              </p>
+                            </div>
+                            <OrderForm
+                              serviceType={selectedService}
+                              initialSource={aiPreset?.sourceLocation}
+                              initialDestination={aiPreset?.deliveryLocation}
+                              initialDetails={aiPreset?.details}
+                              initialFee={aiPreset?.fee}
+                              onSubmit={handlePlaceOrder}
+                              submitting={submittingOrder}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Jaminan Trust Banner */}
+                      <div
+                        className="bg-gradient-to-r from-teal-light/20 to-emerald-light/5 border border-teal/10 rounded-xl p-4 sm:p-5 text-left flex items-start gap-4 animate-slide-up"
+                        style={{ animationDelay: '100ms' }}
+                      >
+                        <div className="w-10 h-10 bg-teal text-white rounded-lg flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                          <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </div>
+                        <div className="space-y-1 text-slate-700">
+                          <h4 className="font-bold text-xs uppercase tracking-wider text-navy-dark">
+                            Perlindungan Mahasiswa UMP
+                          </h4>
+                          <p className="text-xs leading-relaxed text-slate-500">
+                            Setiap penukaran transaksi COD dan pengantaran diawasi secara internal. Jika barang hilang,
+                            tidak sampai, atau terjadi pembatalan sepihak, silakan laporkan ke helpdesk Kampus.
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Courier claimed tasks tracking list */}
-                    <div className="animate-slide-up" style={{ animationDelay: '150ms' }}>
-                      <StatusTracker
-                        orders={filteredOrders}
-                        currentUserId={currentUser?.id || ''}
-                        providerId={currentProvider.id}
-                        mode="provider"
-                        onUpdateStatus={handleUpdateOrderStatus}
-                        onSubmitReview={handleSubmitReview}
-                        onPayOrder={handlePayOrder}
-                        onCancelOrder={handleCancelOrder}
-                      />
+                    {/* Right Column (Instructions & Quick Job Tracker list) */}
+                    <div className="col-span-1 xl:col-span-5 space-y-4 sm:space-y-6">
+                      <div
+                        className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 text-left space-y-3 shadow-card animate-slide-up"
+                        style={{ animationDelay: '50ms' }}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                              Status Kurir {currentUser.name}
+                            </span>
+                            <h4 className="font-extrabold text-[#000c24] text-sm">Akun Kurir Kampus</h4>
+                          </div>
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${courierStatusView.badgeClass}`}
+                          >
+                            {courierStatusView.label}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 leading-relaxed">{courierStatusView.description}</p>
+                        <button
+                          onClick={openProviderDashboard}
+                          className="w-full py-2.5 px-4 bg-teal hover:bg-teal-dark active:scale-[0.98] text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex justify-center items-center gap-1.5"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          <span>{courierStatusView.action}</span>
+                        </button>
+                      </div>
+
+                      {/* Active Order Progress Quick list */}
+                      <div className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
+                        <StatusTracker
+                          orders={filteredOrders}
+                          currentUserId={currentUser?.id || ''}
+                          providerId={currentProvider?.id}
+                          mode="user"
+                          onUpdateStatus={handleUpdateOrderStatus}
+                          onSubmitReview={handleSubmitReview}
+                          onPayOrder={handlePayOrder}
+                          onCancelOrder={handleCancelOrder}
+                        />
+                      </div>
+
+                      {/* Operational guidelines card */}
+                      <div
+                        className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 text-left space-y-3 shadow-card animate-slide-up"
+                        style={{ animationDelay: '150ms' }}
+                      >
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                          Petunjuk Fitur COD
+                        </span>
+                        <h4 className="font-extrabold text-[#000c24] text-xs">Aturan Main Layanan P2P TitipKampus</h4>
+                        <ol className="list-decimal list-inside text-xs text-slate-600 leading-relaxed space-y-2 font-sans">
+                          <li>
+                            <strong>Konfirmasi Detail:</strong> Hubungi kurir untuk memastikan lokasi, barang, dan
+                            nominal transaksi.
+                          </li>
+                          <li>
+                            <strong>Siapkan Nominal COD:</strong> Pastikan uang tunai sesuai total yang tertera di form.
+                          </li>
+                          <li>
+                            <strong>Konfirmasi Selesai:</strong> Jangan lupa tekan tombol "Selesai" jika barang sudah
+                            Anda terima dengan selamat!
+                          </li>
+                        </ol>
+                      </div>
                     </div>
+                  </>
+                )}
+
+                {/* --- PERSPECTIVE B: COURIER MODE DASHBOARD --- */}
+                {mode === 'provider' && currentProvider && currentProvider.status === 'APPROVED' && (
+                  <>
+                    {/* Left Column (Claimable Job feeds) */}
+                    <div className="col-span-1 xl:col-span-7 space-y-4 sm:space-y-6">
+                      <div className="flex items-center justify-between gap-4 animate-slide-up">
+                        <div className="text-left">
+                          <h2 className="text-base sm:text-lg font-extrabold text-navy-dark flex items-center gap-1.5">
+                            Tugas Pengantaran Terbuka UMP
+                            <span className="w-2 h-2 bg-emerald-action rounded-full animate-ping" />
+                          </h2>
+                          <p className="text-xs text-slate-500 hidden sm:block">
+                            Pilihlah salah satu tugas di bawah ini untuk Anda klaim dan antarkan.
+                          </p>
+                        </div>
+                        <button
+                          onClick={fetchState}
+                          className="p-2 sm:p-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-slate-500 cursor-pointer transition-colors shrink-0"
+                          title="Perbarui daftar tugas"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="animate-slide-up" style={{ animationDelay: '50ms' }}>
+                        <JobFeed orders={filteredOrders} currentUserId={currentUser.id} onClaimJob={handleClaimJob} />
+                      </div>
+                    </div>
+
+                    {/* Right Column (Courier Status indicators & claimed active maps) */}
+                    <div className="col-span-1 xl:col-span-5 space-y-4 sm:space-y-6">
+                      {/* Courier current active metrics bar */}
+                      <div
+                        className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up"
+                        style={{ animationDelay: '100ms' }}
+                      >
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 text-left shadow-card">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1">
+                            Dompet Kurir
+                          </span>
+                          <p className="text-lg sm:text-xl font-extrabold text-[#119b50]">
+                            Rp {Number(currentProvider.balance).toLocaleString('id-ID')}
+                          </p>
+                          <span className="text-[9px] text-[#119b50]/80 block mt-1 font-bold">Siap dicairkan</span>
+                        </div>
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 text-left shadow-card">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider mb-1">
+                            Rating Anda
+                          </span>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <p className="text-lg sm:text-xl font-extrabold text-navy-dark">
+                              {currentProvider.rating || '5.0'}
+                            </p>
+                            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                          </div>
+                          <span className="text-[9px] text-slate-400 block mt-1">
+                            {currentProvider.reviewCount} ulasan
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Courier claimed tasks tracking list */}
+                      <div className="animate-slide-up" style={{ animationDelay: '150ms' }}>
+                        <StatusTracker
+                          orders={filteredOrders}
+                          currentUserId={currentUser?.id || ''}
+                          providerId={currentProvider.id}
+                          mode="provider"
+                          onUpdateStatus={handleUpdateOrderStatus}
+                          onSubmitReview={handleSubmitReview}
+                          onPayOrder={handlePayOrder}
+                          onCancelOrder={handleCancelOrder}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {mode === 'provider' && currentProvider && currentProvider.status !== 'APPROVED' && (
+                  <div className="col-span-1 max-w-2xl mx-auto bg-white border border-amber-200 rounded-xl p-5 sm:p-6 text-left shadow-card space-y-3 animate-slide-up">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-700 bg-amber-50 px-2 py-1 rounded-full border border-amber-100 inline-block">
+                      {currentProvider.status === 'REJECTED' ? 'Ditolak Admin' : 'Menunggu Verifikasi Admin'}
+                    </span>
+                    <h2 className="text-base sm:text-lg font-extrabold text-navy-dark">Akun kurir belum aktif</h2>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      Data NIM, fakultas, dan KTM sudah tersimpan. Kurir baru hanya dapat menerima tugas setelah
+                      diverifikasi admin untuk menjaga keamanan transaksi COD dan digital.
+                    </p>
+                    <button
+                      onClick={openStudentDashboard}
+                      className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all"
+                    >
+                      Kembali ke Dashboard Mahasiswa
+                    </button>
                   </div>
-                </>
-              )}
+                )}
 
-              {mode === 'provider' && currentProvider && currentProvider.status !== 'APPROVED' && (
-                <div className="col-span-1 max-w-2xl mx-auto bg-white border border-amber-200 rounded-xl p-5 sm:p-6 text-left shadow-card space-y-3 animate-slide-up">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-amber-700 bg-amber-50 px-2 py-1 rounded-full border border-amber-100 inline-block">
-                    {currentProvider.status === 'REJECTED' ? 'Ditolak Admin' : 'Menunggu Verifikasi Admin'}
-                  </span>
-                  <h2 className="text-base sm:text-lg font-extrabold text-navy-dark">Akun kurir belum aktif</h2>
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    Data NIM, fakultas, dan KTM sudah tersimpan. Kurir baru hanya dapat menerima tugas setelah
-                    diverifikasi admin untuk menjaga keamanan transaksi COD dan digital.
-                  </p>
-                  <button
-                    onClick={openStudentDashboard}
-                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all"
-                  >
-                    Kembali ke Dashboard Mahasiswa
-                  </button>
-                </div>
-              )}
-
-              {/* Offline mode / Gate of entering registration if client hasn't joined courier pool */}
-              {mode === 'provider' && !currentProvider && (
-                <div className="col-span-1 py-6 sm:py-10 animate-slide-up">
-                  <ProviderRegistration onSuccess={handleRegistrationSuccess} onCancel={openStudentDashboard} />
-                </div>
-              )}
-            </div>
+                {/* Offline mode / Gate of entering registration if client hasn't joined courier pool */}
+                {mode === 'provider' && !currentProvider && (
+                  <div className="col-span-1 py-6 sm:py-10 animate-slide-up">
+                    <ProviderRegistration onSuccess={handleRegistrationSuccess} onCancel={openStudentDashboard} />
+                  </div>
+                )}
+              </div>
+            )
           )}
 
           {/* Active View Router: LIST OF ACTIVE ORDERS OR JOBS */}
