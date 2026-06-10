@@ -236,10 +236,10 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
             <div className="text-center lg:text-left space-y-6 sm:space-y-8">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
-                <span className="w-2 h-2 bg-teal rounded-full animate-pulse" />
-                <span className="text-[10px] sm:text-xs font-bold text-white/90">Platform Resmi Mahasiswa UMP</span>
+              {/* Badge - Notion style */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
+                <CheckCircle2 className="w-3.5 h-3.5 text-teal" />
+                <span className="text-xs sm:text-sm font-medium text-white/90">Platform Resmi Mahasiswa UMP</span>
               </div>
 
               {/* Headline */}
@@ -259,19 +259,19 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
                 </p>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
-                  <span className="text-xs sm:text-sm font-medium text-white/80">Gratis</span>
+              {/* Trust Indicators - Wise style badges */}
+              <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+                <div className="trust-badge trust-badge-verified">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Gratis</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
-                  <span className="text-xs sm:text-sm font-medium text-white/80">Verifikasi KTM</span>
+                <div className="trust-badge trust-badge-verified">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Verifikasi KTM</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
-                  <span className="text-xs sm:text-sm font-medium text-white/80">COD Tunai</span>
+                <div className="trust-badge trust-badge-secure">
+                  <Wallet className="w-3.5 h-3.5" />
+                  <span>COD Tunai</span>
                 </div>
               </div>
 
@@ -426,21 +426,21 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
             {services.map((service, index) => (
               <div
                 key={index}
-                className="group relative p-8 bg-white border border-slate-100 rounded-2xl hover:shadow-2xl hover:border-slate-200 transition-all duration-300 cursor-pointer"
+                className="service-card group relative cursor-pointer"
               >
                 {service.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-teal to-teal-dark text-white text-xs font-bold rounded-full shadow-lg">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 badge badge-popular text-white text-xs">
                     Paling Populer
                   </div>
                 )}
                 <div
-                  className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}
+                  className={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center mb-5 shadow-md group-hover:scale-105 group-hover:rotate-3 transition-all duration-300`}
                 >
-                  <service.icon className="w-8 h-8 text-white" />
+                  <service.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-navy-dark mb-2">{service.title}</h3>
-                <p className="text-slate-500">{service.description}</p>
-                <div className="mt-6 flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
+                <h3 className="text-lg font-semibold text-[#1a1a1a] mb-2">{service.title}</h3>
+                <p className="text-sm text-[#737373] leading-relaxed">{service.description}</p>
+                <div className="mt-5 flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
                   <span>Selengkapnya</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>
@@ -597,17 +597,17 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
             <h2 className="text-3xl lg:text-4xl font-black text-navy-dark mt-2">Mengapa Memilih TitipKampus?</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="p-6 bg-white rounded-2xl shadow-sm border border-slate-100 text-center hover:shadow-lg hover:border-teal/20 transition-all"
+                className="card p-6 text-center hover:shadow-card-hover transition-all"
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-teal/10 to-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-7 h-7 text-teal" />
                 </div>
-                <h3 className="font-bold text-navy-dark text-lg mb-2">{feature.title}</h3>
-                <p className="text-slate-500 text-sm">{feature.description}</p>
+                <h3 className="font-semibold text-[#1a1a1a] text-base mb-2">{feature.title}</h3>
+                <p className="text-sm text-[#737373] leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -625,66 +625,66 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="testimonial-card hover:shadow-card-hover transition-all">
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
+                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-slate-600 leading-relaxed mb-6">
+              <p className="text-[#525252] leading-relaxed mb-5">
                 "Super membantu! Biasanya saya antri 30 menit di kantin FT, sekarang tinggal titip via app dan makanan
                 sampai di kelas. Kurir-nya ramah dan cepat."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-navy to-slate-800 rounded-full flex items-center justify-center text-teal font-bold">
+                <div className="w-11 h-11 bg-gradient-to-br from-teal to-teal-dark rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   MK
                 </div>
                 <div>
-                  <p className="font-bold text-navy-dark text-sm">Mahasiswi FKIP</p>
-                  <p className="text-slate-500 text-xs">Semester 6 • Titip Makan</p>
+                  <p className="font-semibold text-[#1a1a1a] text-sm">Mahasiswi FKIP</p>
+                  <p className="text-[#737373] text-xs">Semester 6 • Titip Makan</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+            <div className="testimonial-card hover:shadow-card-hover transition-all">
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
+                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-slate-600 leading-relaxed mb-6">
+              <p className="text-[#525252] leading-relaxed mb-5">
                 "Print skripsi 200 halaman ga harus ke toko fotokopi lagi. Titip aja dari kos, selesai sama kurir
                 diantar ke Laboratorium. Hemat waktu banget!"
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-navy to-slate-800 rounded-full flex items-center justify-center text-teal font-bold">
+                <div className="w-11 h-11 bg-gradient-to-br from-teal to-teal-dark rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   AR
                 </div>
                 <div>
-                  <p className="font-bold text-navy-dark text-sm">Mahasiswa Teknik</p>
-                  <p className="text-slate-500 text-xs">Semester 4 • Titip Fotokopi</p>
+                  <p className="font-semibold text-[#1a1a1a] text-sm">Mahasiswa Teknik</p>
+                  <p className="text-[#737373] text-xs">Semester 4 • Titip Fotokopi</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-8 hover:shadow-lg transition-all">
+            <div className="testimonial-card hover:shadow-card-hover transition-all">
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
+                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-slate-600 leading-relaxed mb-6">
+              <p className="text-[#525252] leading-relaxed mb-5">
                 "Laundry kiloan jadi lebih gampang. Tinggal pesan, besok pagi sudah bersih diantar. KTM kurir-nya dicek,
                 jadi merasa aman transaksi."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-navy to-slate-800 rounded-full flex items-center justify-center text-teal font-bold">
+                <div className="w-11 h-11 bg-gradient-to-br from-teal to-teal-dark rounded-full flex items-center justify-center text-white font-semibold text-sm">
                   SN
                 </div>
                 <div>
-                  <p className="font-bold text-navy-dark text-sm">Mahasiswi Asrama Psikologi</p>
-                  <p className="text-slate-500 text-xs">Titip Laundry</p>
+                  <p className="font-semibold text-[#1a1a1a] text-sm">Mahasiswi Asrama Psikologi</p>
+                  <p className="text-[#737373] text-xs">Titip Laundry</p>
                 </div>
               </div>
             </div>
@@ -777,15 +777,15 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
             <h2 className="text-3xl lg:text-4xl font-black text-navy-dark mt-2">Pertanyaan yang Sering Diajukan</h2>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {faqs.map((faq, index) => (
-              <details key={index} className="group bg-slate-50 border border-slate-100 rounded-xl overflow-hidden">
-                <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
-                  <span className="font-bold text-navy-dark text-sm lg:text-base pr-4">{faq.question}</span>
-                  <ChevronDown className="w-5 h-5 text-slate-400 shrink-0 group-open:rotate-180 transition-transform" />
+              <details key={index} className="faq-item group">
+                <summary className="flex items-center justify-between cursor-pointer list-none">
+                  <span className="font-medium text-[#1a1a1a] text-sm lg:text-base pr-4">{faq.question}</span>
+                  <ChevronDown className="w-5 h-5 text-[#a3a3a3] shrink-0 group-open:rotate-180 transition-transform" />
                 </summary>
-                <div className="px-6 pb-6">
-                  <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
+                <div className="px-5 pb-5">
+                  <p className="text-[#525252] text-sm leading-relaxed">{faq.answer}</p>
                 </div>
               </details>
             ))}
