@@ -1,5 +1,16 @@
-import { ArrowLeft, Loader2, LockKeyhole, LogIn, Mail, Phone, UserPlus, UserRound } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Loader2,
+  LockKeyhole,
+  LogIn,
+  Mail,
+  Phone,
+  UserPlus,
+  UserRound
+} from 'lucide-react';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
 import type { User } from '../types';
 
 interface AuthScreenProps {
@@ -10,15 +21,14 @@ interface AuthScreenProps {
 
 export default function AuthScreen({ onAuthenticated, initialMode = 'login', onBackToLanding }: AuthScreenProps) {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
-  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [testOtp, setTestOtp] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -26,12 +36,7 @@ export default function AuthScreen({ onAuthenticated, initialMode = 'login', onB
     setError(null);
 
     try {
-      const endpoint =
-        mode === 'login' && loginMethod === 'otp'
-          ? '/api/auth/otp/login'
-          : mode === 'login'
-            ? '/api/auth/login'
-            : '/api/auth/register';
+      const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,45 +44,29 @@ export default function AuthScreen({ onAuthenticated, initialMode = 'login', onB
           name,
           email,
           phone,
-          password,
-          code: otpCode
+          password
         })
       });
 
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.error || 'Autentikasi gagal.');
+        throw new Error(result.error || 'Email atau password belum cocok 🤔');
       }
 
       onAuthenticated(result.user);
     } catch (e: any) {
-      setError(e.message || 'Autentikasi gagal.');
+      setError(e.message || 'Email atau password belum cocok 🤔');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRequestOtp = async () => {
-    setLoading(true);
-    setError(null);
-    setTestOtp(null);
-
-    try {
-      const response = await fetch('/api/auth/otp/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Gagal membuat OTP.');
-      setTestOtp(result.demoCode);
-      setOtpCode(result.demoCode);
-    } catch (e: any) {
-      setError(e.message || 'Gagal membuat OTP.');
-    } finally {
-      setLoading(false);
+  // Auto-focus name input when switching to register tab
+  useEffect(() => {
+    if (mode === 'register') {
+      nameInputRef.current?.focus();
     }
-  };
+  }, [mode]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#f0fdfa] flex items-center justify-center px-3 py-6 safe-area-top safe-area-bottom">
@@ -159,26 +148,6 @@ export default function AuthScreen({ onAuthenticated, initialMode = 'login', onB
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-            {/* Login Method Toggle (Login only) */}
-            {mode === 'login' && (
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                {(['password', 'otp'] as const).map((method) => (
-                  <button
-                    type="button"
-                    key={method}
-                    onClick={() => setLoginMethod(method)}
-                    className={`rounded-xl py-2.5 sm:py-3 text-xs sm:text-sm font-bold border-2 transition-all cursor-pointer ${
-                      loginMethod === method
-                        ? 'bg-teal text-white border-teal shadow-lg shadow-teal/20'
-                        : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    {method === 'password' ? 'Password' : 'OTP'}
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* Name (Register only) */}
             {mode === 'register' && (
               <div className="space-y-1.5">
@@ -188,10 +157,12 @@ export default function AuthScreen({ onAuthenticated, initialMode = 'login', onB
                 <div className="relative">
                   <UserRound className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400" />
                   <input
+                    ref={nameInputRef}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
                     placeholder="Nama sesuai KTM"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -210,6 +181,7 @@ export default function AuthScreen({ onAuthenticated, initialMode = 'login', onB
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
                     placeholder="08xxxxxxxxxx"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -228,62 +200,35 @@ export default function AuthScreen({ onAuthenticated, initialMode = 'login', onB
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
                   placeholder="nama@gmail.com"
+                  disabled={loading}
                 />
               </div>
             </div>
 
             {/* Password */}
-            {(mode === 'register' || loginMethod === 'password') && (
-              <div className="space-y-1.5">
-                <label className="text-[11px] sm:text-xs font-bold uppercase text-slate-600 tracking-wide block">
-                  Password
-                </label>
-                <div className="relative">
-                  <LockKeyhole className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
-                    placeholder="Minimal 6 karakter"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* OTP (Login with OTP only) */}
-            {mode === 'login' && loginMethod === 'otp' && (
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <label className="text-[11px] sm:text-xs font-bold uppercase text-slate-600 tracking-wide block">
-                    Kode OTP
-                  </label>
-                  <div className="relative">
-                    <LockKeyhole className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400" />
-                    <input
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                      className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
-                      placeholder="Masukkan 6 digit OTP"
-                    />
-                  </div>
-                </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] sm:text-xs font-bold uppercase text-slate-600 tracking-wide block">
+                Password
+              </label>
+              <div className="relative">
+                <LockKeyhole className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 sm:pl-12 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal/20 focus:border-teal transition-all"
+                  placeholder="Minimal 6 karakter"
+                  disabled={loading}
+                />
                 <button
                   type="button"
-                  onClick={handleRequestOtp}
-                  disabled={loading || !email}
-                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all text-sm cursor-pointer disabled:opacity-50"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                 >
-                  {loading ? 'Memuat...' : 'Minta Kode OTP'}
+                  {showPassword ? <EyeOff className="w-4 sm:w-5 h-4 sm:h-5" /> : <Eye className="w-4 sm:w-5 h-4 sm:h-5" />}
                 </button>
-                {testOtp && (
-                  <div className="p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                    <p className="text-blue-800 text-xs sm:text-sm font-bold">Kode OTP:</p>
-                    <p className="text-blue-900 text-xl sm:text-2xl font-black mt-1 tracking-widest">{testOtp}</p>
-                  </div>
-                )}
               </div>
-            )}
+            </div>
 
             {/* Error Message */}
             {error && (
