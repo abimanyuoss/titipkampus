@@ -317,6 +317,65 @@ async function configureTitipKampusApp(app: Express, options: CreateAppOptions =
     }
   });
 
+  app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body as Record<string, string>;
+      if (!email) {
+        return res.status(400).json({ error: 'Email wajib diisi.' });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const user = await db.getUserByEmail(normalizedEmail);
+
+      if (user) {
+        // Generate OTP for password reset
+        const otp = await db.requestOtp(normalizedEmail, 'PASSWORD_RESET');
+
+        // In production, you would send an actual email/SMS with the OTP
+        console.log(`[Password Reset OTP] For ${normalizedEmail}: ${otp.code}`);
+
+        // TODO: Send actual OTP via email/SMS
+        // await sendPasswordResetOTP(user.phone, otp.code);
+      }
+
+      // Always return success to prevent email enumeration attacks
+      res.json({
+        success: true,
+        message: 'Jika email tersebut terdaftar, kode OTP reset password telah dikirim.'
+      });
+    } catch (e: any) {
+      console.error('[Forgot Password Error]', e);
+      res.status(500).json({ error: 'Terjadi kesalahan. Silakan coba lagi.' });
+    }
+  });
+
+  app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+    try {
+      const { email, code, newPassword } = req.body as Record<string, string>;
+      if (!email || !code || !newPassword) {
+        return res.status(400).json({ error: 'Email, kode OTP, dan password baru wajib diisi.' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Password minimal 6 karakter.' });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const valid = await db.consumeOtp(normalizedEmail, code, 'PASSWORD_RESET');
+
+      if (!valid) {
+        return res.status(401).json({ error: 'Kode OTP tidak valid atau kedaluwarsa.' });
+      }
+
+      await db.resetPassword(normalizedEmail, newPassword);
+
+      res.json({ success: true, message: 'Password berhasil direset. Silakan login dengan password baru.' });
+    } catch (e: any) {
+      console.error('[Reset Password Error]', e);
+      res.status(500).json({ error: 'Terjadi kesalahan. Silakan coba lagi.' });
+    }
+  });
+
   app.post('/api/auth/otp/request', async (req: Request, res: Response) => {
     try {
       const { email } = req.body as Record<string, string>;
@@ -393,8 +452,7 @@ async function configureTitipKampusApp(app: Express, options: CreateAppOptions =
         deliveryLocation,
         details,
         fee,
-        paymentMethod = 'COD',
-        voucherCode
+        paymentMethod = 'COD'
       } = req.body;
 
       if (
@@ -415,8 +473,7 @@ async function configureTitipKampusApp(app: Express, options: CreateAppOptions =
         deliveryLocation,
         details,
         fee: Number(fee),
-        paymentMethod,
-        voucherCode
+        paymentMethod
       });
 
       broadcast({
@@ -455,11 +512,6 @@ async function configureTitipKampusApp(app: Express, options: CreateAppOptions =
     } catch (e: any) {
       res.status(500).json({ error: e.message || 'Gagal memproses pembayaran.' });
     }
-  });
-
-  app.get('/api/vouchers', async (_req: Request, res: Response) => {
-    const vouchers = await db.getVouchers();
-    res.json(vouchers);
   });
 
   app.post('/api/provider/register', async (req: Request, res: Response) => {

@@ -51,7 +51,6 @@ export interface Order {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   paymentReference?: string | null;
-  voucherCode?: string | null;
 }
 
 export interface Review {
@@ -87,14 +86,4 @@ export interface AnalyticsSummary {
   digitalPaymentCount: number;
   codPaymentCount: number;
   averageRating: number;
-}
-
-export interface Voucher {
-  code: string;
-  description: string;
-  discountAmount: number;
-  minimumFee: number;
-  redemptionCount: number;
-  isActive: boolean;
-  expiresAt?: string | null;
 }

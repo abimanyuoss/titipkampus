@@ -4,8 +4,7 @@ import {
   type Order as PrismaOrder,
   type Provider as PrismaProvider,
   type Review as PrismaReview,
-  type User as PrismaUser,
-  type Voucher as PrismaVoucher
+  type User as PrismaUser
 } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import type {
@@ -16,8 +15,7 @@ import type {
   Provider,
   Review,
   ServiceType,
-  User,
-  Voucher
+  User
 } from '../types.js';
 import { InMemoryTitipKampusDB } from './memory-db.js';
 import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config.js';
@@ -32,7 +30,6 @@ type CreateOrderInput = {
   details: string;
   fee: number;
   paymentMethod: PaymentMethod;
-  voucherCode?: string;
 };
 
 type RegisterProviderInput = {
@@ -80,7 +77,7 @@ function toProvider(provider: PrismaProvider): Provider {
 }
 
 function toOrder(order: PrismaOrder & { provider?: PrismaProvider | null; customer?: PrismaUser | null }): Order {
-  const totalFee = order.totalFee || Math.max(0, order.fee - order.discountAmount);
+  const totalFee = order.totalFee || order.fee;
   return {
     id: order.id,
     customerUserId: order.customerUserId,
@@ -92,15 +89,14 @@ function toOrder(order: PrismaOrder & { provider?: PrismaProvider | null; custom
     deliveryLocation: order.deliveryLocation,
     details: order.details,
     fee: order.fee,
-    discountAmount: order.discountAmount,
+    discountAmount: 0,
     totalFee,
     status: order.status as OrderStatus,
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),
     paymentMethod: order.paymentMethod,
     paymentStatus: order.paymentStatus,
-    paymentReference: order.paymentReference,
-    voucherCode: order.voucherCode
+    paymentReference: order.paymentReference
   };
 }
 
@@ -113,18 +109,6 @@ function toReview(review: PrismaReview): Review {
     comment: review.comment,
     createdAt: review.createdAt.toISOString(),
     fromName: review.fromName
-  };
-}
-
-function toVoucher(voucher: PrismaVoucher): Voucher {
-  return {
-    code: voucher.code,
-    description: voucher.description,
-    discountAmount: voucher.discountAmount,
-    minimumFee: voucher.minimumFee,
-    redemptionCount: voucher.redemptionCount,
-    isActive: voucher.isActive,
-    expiresAt: voucher.expiresAt?.toISOString() || null
   };
 }
 
@@ -150,10 +134,11 @@ type DatabaseDelegate = {
   ensureSeedData(): Promise<void>;
   createUser(input: CreateUserInput): Promise<User>;
   authenticateUser(email: string, password: string): Promise<User | null>;
-  requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT'): Promise<{ code: string; expiresInSeconds: number }>;
+  requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET'): Promise<{ code: string; expiresInSeconds: number }>;
   authenticateWithOtp(email: string, code: string): Promise<User | null>;
-  consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT'): Promise<boolean>;
+  consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET'): Promise<boolean>;
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   getProvider(providerId: string): Promise<Provider | undefined>;
   getProviderByUserId(userId: string): Promise<Provider | undefined>;
   getOrders(): Promise<Order[]>;
@@ -165,12 +150,12 @@ type DatabaseDelegate = {
   claimOrder(orderId: string, providerId: string): Promise<Order | undefined>;
   updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order | undefined>;
   addReview(orderId: string, rating: number, comment: string, fromName: string): Promise<Review | undefined>;
-  getVouchers(): Promise<Voucher[]>;
   getPendingProviders(): Promise<Provider[]>;
   moderateProvider(providerId: string, decision: 'APPROVED' | 'REJECTED'): Promise<Provider>;
   getAnalytics(): Promise<AnalyticsSummary>;
   cancelOrder(orderId: string, userId: string): Promise<Order | undefined>;
   updateProfile(userId: string, data: { name?: string; phone?: string; avatar?: string }): Promise<User | undefined>;
+  resetPassword(email: string, newPassword: string): Promise<void>;
 };
 
 function shouldUseMemoryDatabase() {
@@ -210,48 +195,6 @@ export class TitipKampusDB {
         }
       });
     }
-
-    await prisma.voucher.upsert({
-      where: { code: 'UMPHEMAT' },
-      update: {
-        description: 'Potongan Rp 2.000 untuk transaksi minimal Rp 7.000.',
-        discountAmount: 2000,
-        minimumFee: 7000,
-        maxRedemptions: null,
-        isActive: true,
-        expiresAt: null
-      },
-      create: {
-        code: 'UMPHEMAT',
-        description: 'Potongan Rp 2.000 untuk transaksi minimal Rp 7.000.',
-        discountAmount: 2000,
-        minimumFee: 7000,
-        maxRedemptions: null,
-        isActive: true,
-        expiresAt: null
-      }
-    });
-
-    await prisma.voucher.upsert({
-      where: { code: 'KOPMA5000' },
-      update: {
-        description: 'Potongan Rp 5.000 untuk transaksi minimal Rp 15.000.',
-        discountAmount: 5000,
-        minimumFee: 15000,
-        maxRedemptions: null,
-        isActive: true,
-        expiresAt: null
-      },
-      create: {
-        code: 'KOPMA5000',
-        description: 'Potongan Rp 5.000 untuk transaksi minimal Rp 15.000.',
-        discountAmount: 5000,
-        minimumFee: 15000,
-        maxRedemptions: null,
-        isActive: true,
-        expiresAt: null
-      }
-    });
   }
 
   async createUser(input: CreateUserInput) {
@@ -275,7 +218,7 @@ export class TitipKampusDB {
     return isValid ? toUser(user) : null;
   }
 
-  async requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT') {
+  async requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET') {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     const code = createOtpCode();
@@ -301,7 +244,7 @@ export class TitipKampusDB {
     return user ? toUser(user) : null;
   }
 
-  async consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT') {
+  async consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET') {
     const otp = await prisma.otpCode.findFirst({
       where: {
         email: email.trim().toLowerCase(),
@@ -325,6 +268,11 @@ export class TitipKampusDB {
 
   async getUser(id: string) {
     const user = await prisma.user.findUnique({ where: { id } });
+    return user ? toUser(user) : undefined;
+  }
+
+  async getUserByEmail(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
     return user ? toUser(user) : undefined;
   }
 
@@ -356,56 +304,22 @@ export class TitipKampusDB {
 
   async createOrder(orderData: CreateOrderInput) {
     const fee = Math.max(2000, Math.round(orderData.fee));
-    let discountAmount = 0;
-    let voucherCode: string | undefined;
 
-    if (orderData.voucherCode?.trim()) {
-      const voucher = await prisma.voucher.findUnique({
-        where: { code: orderData.voucherCode.trim().toUpperCase() }
-      });
-      if (!voucher) {
-        throw new Error('Kode voucher tidak ditemukan.');
-      }
-      const expired = voucher.expiresAt ? voucher.expiresAt < new Date() : false;
-      const maxedOut = voucher.maxRedemptions ? voucher.redemptionCount >= voucher.maxRedemptions : false;
-      if (!voucher.isActive || expired || maxedOut) {
-        throw new Error('Voucher sudah tidak aktif atau kedaluwarsa.');
-      }
-      if (fee < voucher.minimumFee) {
-        throw new Error(
-          `Voucher ini hanya berlaku untuk minimum transaksi Rp ${voucher.minimumFee.toLocaleString('id-ID')}.`
-        );
-      }
-      discountAmount = Math.min(fee, voucher.discountAmount);
-      voucherCode = voucher.code;
-    }
-
-    const totalFee = Math.max(0, fee - discountAmount);
-    const order = await prisma.$transaction(async (tx) => {
-      if (voucherCode) {
-        await tx.voucher.update({
-          where: { code: voucherCode },
-          data: { redemptionCount: { increment: 1 } }
-        });
-      }
-
-      return tx.order.create({
-        data: {
-          customerUserId: orderData.customerUserId,
-          serviceType: orderData.serviceType,
-          sourceLocation: orderData.sourceLocation.trim(),
-          deliveryLocation: orderData.deliveryLocation.trim(),
-          details: orderData.details.trim(),
-          fee,
-          discountAmount,
-          totalFee,
-          voucherCode,
-          paymentMethod: orderData.paymentMethod,
-          paymentStatus: orderData.paymentMethod === 'DIGITAL' ? 'WAITING_PAYMENT' : 'WAITING_PAYMENT',
-          paymentReference: orderData.paymentMethod === 'DIGITAL' ? `TKPAY-${Date.now()}` : null
-        },
-        include: { provider: true, customer: true }
-      });
+    const order = await prisma.order.create({
+      data: {
+        customerUserId: orderData.customerUserId,
+        serviceType: orderData.serviceType,
+        sourceLocation: orderData.sourceLocation.trim(),
+        deliveryLocation: orderData.deliveryLocation.trim(),
+        details: orderData.details.trim(),
+        fee,
+        discountAmount: 0,
+        totalFee: fee,
+        paymentMethod: orderData.paymentMethod,
+        paymentStatus: 'WAITING_PAYMENT',
+        paymentReference: orderData.paymentMethod === 'DIGITAL' ? `TKPAY-${Date.now()}` : null
+      },
+      include: { provider: true, customer: true }
     });
 
     return toOrder(order);
@@ -552,14 +466,6 @@ export class TitipKampusDB {
     return toReview(review);
   }
 
-  async getVouchers() {
-    const vouchers = await prisma.voucher.findMany({
-      where: { isActive: true },
-      orderBy: { code: 'asc' }
-    });
-    return vouchers.map(toVoucher);
-  }
-
   async getPendingProviders() {
     const providers = await prisma.provider.findMany({
       where: { status: 'PENDING_VERIFICATION' },
@@ -669,6 +575,14 @@ export class TitipKampusDB {
     });
     return toUser(updated);
   }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({
+      where: { email },
+      data: { passwordHash }
+    });
+  }
 }
 
 class ResilientTitipKampusDB {
@@ -704,7 +618,7 @@ class ResilientTitipKampusDB {
     return this.delegate.authenticateUser(email, password);
   }
 
-  async requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT') {
+  async requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET') {
     return this.delegate.requestOtp(email, purpose);
   }
 
@@ -712,7 +626,7 @@ class ResilientTitipKampusDB {
     return this.delegate.authenticateWithOtp(email, code);
   }
 
-  async consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT') {
+  async consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET') {
     return this.delegate.consumeOtp(email, code, purpose);
   }
 
@@ -764,10 +678,6 @@ class ResilientTitipKampusDB {
     return this.delegate.addReview(orderId, rating, comment, fromName);
   }
 
-  async getVouchers() {
-    return this.delegate.getVouchers();
-  }
-
   async getPendingProviders() {
     return this.delegate.getPendingProviders();
   }
@@ -786,6 +696,14 @@ class ResilientTitipKampusDB {
 
   async updateProfile(userId: string, data: { name?: string; phone?: string; avatar?: string }) {
     return this.delegate.updateProfile(userId, data);
+  }
+
+  async getUserByEmail(email: string) {
+    return this.delegate.getUserByEmail(email);
+  }
+
+  async resetPassword(email: string, newPassword: string) {
+    return this.delegate.resetPassword(email, newPassword);
   }
 }
 

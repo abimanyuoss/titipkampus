@@ -63,7 +63,7 @@ export default function App() {
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [notifications, setNotifications] = useState<string[]>([
     'Selamat bergabung di TitipKampus UMP!',
-    'Sistem operasional aktif: pelacakan real-time, OTP pembayaran, voucher, dan COD.'
+    'Sistem operasional aktif: pelacakan real-time dan COD.'
   ]);
 
   // Toast notifications
@@ -162,7 +162,6 @@ export default function App() {
     details: string;
     fee: number;
     paymentMethod: PaymentMethod;
-    voucherCode?: string;
   }) => {
     setSubmittingOrder(true);
 

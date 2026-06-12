@@ -8,8 +8,7 @@ import type {
   Provider,
   Review,
   ServiceType,
-  User,
-  Voucher
+  User
 } from '../types.js';
 import { getSeedAdminUser, getSeedStudentUser, type SeedUserConfig } from './seed-config.js';
 
@@ -21,7 +20,6 @@ type CreateOrderInput = {
   details: string;
   fee: number;
   paymentMethod: PaymentMethod;
-  voucherCode?: string;
 };
 
 type RegisterProviderInput = {
@@ -62,18 +60,12 @@ type StoredReview = Omit<Review, 'createdAt'> & {
   createdAt: Date;
 };
 
-type StoredVoucher = Omit<Voucher, 'expiresAt'> & {
-  maxRedemptions?: number | null;
-  expiresAt?: Date | null;
-  createdAt: Date;
-};
-
 type StoredOtp = {
   id: string;
   userId?: string;
   email: string;
   codeHash: string;
-  purpose: 'LOGIN' | 'PAYMENT';
+  purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET';
   expiresAt: Date;
   usedAt: Date | null;
   createdAt: Date;
@@ -115,7 +107,6 @@ export class InMemoryTitipKampusDB {
   private readonly providers = new Map<string, StoredProvider>();
   private readonly orders = new Map<string, StoredOrder>();
   private readonly reviews = new Map<string, StoredReview>();
-  private readonly vouchers = new Map<string, StoredVoucher>();
   private readonly otpCodes = new Map<string, StoredOtp>();
   private seeded = false;
 
@@ -129,28 +120,6 @@ export class InMemoryTitipKampusDB {
     for (const seedUser of seedUsers) {
       this.upsertUser(toStoredSeedUser(seedUser, await bcrypt.hash(seedUser.password, 12)));
     }
-
-    this.upsertVoucher({
-      code: 'UMPHEMAT',
-      description: 'Potongan Rp 2.000 untuk transaksi minimal Rp 7.000.',
-      discountAmount: 2000,
-      minimumFee: 7000,
-      maxRedemptions: null,
-      redemptionCount: 0,
-      isActive: true,
-      expiresAt: null
-    });
-
-    this.upsertVoucher({
-      code: 'KOPMA5000',
-      description: 'Potongan Rp 5.000 untuk transaksi minimal Rp 15.000.',
-      discountAmount: 5000,
-      minimumFee: 15000,
-      maxRedemptions: null,
-      redemptionCount: 0,
-      isActive: true,
-      expiresAt: null
-    });
 
     this.seeded = true;
   }
@@ -183,7 +152,7 @@ export class InMemoryTitipKampusDB {
     return isValid ? this.toUser(user) : null;
   }
 
-  async requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT') {
+  async requestOtp(email: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET') {
     const normalizedEmail = email.trim().toLowerCase();
     const user = this.findUserByEmail(normalizedEmail);
     const code = createOtpCode();
@@ -213,7 +182,7 @@ export class InMemoryTitipKampusDB {
     return user ? this.toUser(user) : null;
   }
 
-  async consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT') {
+  async consumeOtp(email: string, code: string, purpose: 'LOGIN' | 'PAYMENT' | 'PASSWORD_RESET') {
     const otp = Array.from(this.otpCodes.values())
       .filter(
         (item) =>
@@ -236,6 +205,18 @@ export class InMemoryTitipKampusDB {
   async getUser(id: string) {
     const user = this.users.get(id);
     return user ? this.toUser(user) : undefined;
+  }
+
+  async getUserByEmail(email: string) {
+    return this.findUserByEmail(email) ? this.toUser(this.findUserByEmail(email)) : undefined;
+  }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    const user = this.findUserByEmail(email);
+    if (user) {
+      user.passwordHash = await bcrypt.hash(newPassword, 12);
+      user.updatedAt = new Date();
+    }
   }
 
   async getProvider(providerId: string) {
@@ -261,30 +242,6 @@ export class InMemoryTitipKampusDB {
 
   async createOrder(orderData: CreateOrderInput) {
     const fee = Math.max(2000, Math.round(orderData.fee));
-    let discountAmount = 0;
-    let voucherCode: string | null = null;
-
-    if (orderData.voucherCode?.trim()) {
-      const voucher = this.vouchers.get(orderData.voucherCode.trim().toUpperCase());
-      if (!voucher) {
-        throw new Error('Kode voucher tidak ditemukan.');
-      }
-      const expired = voucher.expiresAt ? voucher.expiresAt < new Date() : false;
-      const maxedOut = voucher.maxRedemptions ? voucher.redemptionCount >= voucher.maxRedemptions : false;
-      if (!voucher.isActive || expired || maxedOut) {
-        throw new Error('Voucher sudah tidak aktif atau kedaluwarsa.');
-      }
-      if (fee < voucher.minimumFee) {
-        throw new Error(
-          `Voucher ini hanya berlaku untuk minimum transaksi Rp ${voucher.minimumFee.toLocaleString('id-ID')}.`
-        );
-      }
-      discountAmount = Math.min(fee, voucher.discountAmount);
-      voucherCode = voucher.code;
-      voucher.redemptionCount += 1;
-    }
-
-    const totalFee = Math.max(0, fee - discountAmount);
     const now = new Date();
     const order: StoredOrder = {
       id: randomUUID(),
@@ -295,13 +252,12 @@ export class InMemoryTitipKampusDB {
       deliveryLocation: orderData.deliveryLocation.trim(),
       details: orderData.details.trim(),
       fee,
-      discountAmount,
-      totalFee,
+      discountAmount: 0,
+      totalFee: fee,
       status: 'PENDING',
       paymentMethod: orderData.paymentMethod,
       paymentStatus: 'WAITING_PAYMENT',
       paymentReference: orderData.paymentMethod === 'DIGITAL' ? `TKPAY-${Date.now()}` : null,
-      voucherCode,
       createdAt: now,
       updatedAt: now
     };
@@ -423,13 +379,6 @@ export class InMemoryTitipKampusDB {
     return this.toReview(review);
   }
 
-  async getVouchers() {
-    return Array.from(this.vouchers.values())
-      .filter((voucher) => voucher.isActive)
-      .sort((a, b) => a.code.localeCompare(b.code))
-      .map((voucher) => this.toVoucher(voucher));
-  }
-
   async getPendingProviders() {
     return Array.from(this.providers.values())
       .filter((provider) => provider.status === 'PENDING_VERIFICATION')
@@ -523,21 +472,6 @@ export class InMemoryTitipKampusDB {
     return user;
   }
 
-  private upsertVoucher(input: Omit<StoredVoucher, 'createdAt'>) {
-    const existing = this.vouchers.get(input.code);
-    if (existing) {
-      Object.assign(existing, input);
-      return existing;
-    }
-
-    const voucher: StoredVoucher = {
-      ...input,
-      createdAt: new Date()
-    };
-    this.vouchers.set(voucher.code, voucher);
-    return voucher;
-  }
-
   private recalculateProviderRating(providerId: string) {
     const provider = this.providers.get(providerId);
     if (!provider) return;
@@ -590,7 +524,7 @@ export class InMemoryTitipKampusDB {
   private toOrder(order: StoredOrder): Order {
     const customer = this.users.get(order.customerUserId);
     const provider = order.providerId ? this.providers.get(order.providerId) : undefined;
-    const totalFee = order.totalFee || Math.max(0, order.fee - order.discountAmount);
+    const totalFee = order.totalFee || order.fee;
 
     return {
       id: order.id,
@@ -603,15 +537,14 @@ export class InMemoryTitipKampusDB {
       deliveryLocation: order.deliveryLocation,
       details: order.details,
       fee: order.fee,
-      discountAmount: order.discountAmount,
+      discountAmount: 0,
       totalFee,
       status: order.status,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),
       paymentMethod: order.paymentMethod,
       paymentStatus: order.paymentStatus,
-      paymentReference: order.paymentReference,
-      voucherCode: order.voucherCode
+      paymentReference: order.paymentReference
     };
   }
 
@@ -624,18 +557,6 @@ export class InMemoryTitipKampusDB {
       comment: review.comment,
       createdAt: review.createdAt.toISOString(),
       fromName: review.fromName
-    };
-  }
-
-  private toVoucher(voucher: StoredVoucher): Voucher {
-    return {
-      code: voucher.code,
-      description: voucher.description,
-      discountAmount: voucher.discountAmount,
-      minimumFee: voucher.minimumFee,
-      redemptionCount: voucher.redemptionCount,
-      isActive: voucher.isActive,
-      expiresAt: voucher.expiresAt?.toISOString() || null
     };
   }
 }

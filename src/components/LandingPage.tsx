@@ -343,17 +343,6 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
                       <span className="text-emerald-400 text-sm font-bold">Rp 20.000</span>
                     </div>
                   </div>
-
-                  {/* Voucher Banner */}
-                  <div className="mt-4 p-3 bg-gradient-to-r from-amber-500/20 to-amber-600/10 rounded-xl border border-amber-500/30">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-amber-400" />
-                        <span className="text-amber-300 text-xs font-bold">Voucher aktif:</span>
-                      </div>
-                      <span className="text-amber-400 font-black text-sm">UMPHEMAT</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -492,7 +481,7 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">Konfirmasi & Bayar</h3>
               <p className="text-slate-300 leading-relaxed">
-                Selesaikan pembayaran via COD tunai langsung ke kurir. Gunakan kode voucher untuk diskon.
+                Selesaikan pembayaran via COD tunai langsung ke kurir.
               </p>
             </div>
 
@@ -572,16 +561,6 @@ export default function LandingPage({ onLogin, onRegister, onRegisterAsCourier }
                   </div>
 
                   <div className="h-px bg-white/10" />
-
-                  <div className="flex items-center gap-4 p-4 bg-white/10 rounded-xl">
-                    <div className="w-14 h-14 bg-amber-500/20 rounded-xl flex items-center justify-center">
-                      <Award className="w-8 h-8 text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-white text-lg">Voucher Eksklusif</p>
-                      <p className="text-slate-300 text-sm">UMPHEMAT & KOPMA5000 siap digunakan</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

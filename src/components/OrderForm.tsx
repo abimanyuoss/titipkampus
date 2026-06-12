@@ -1,7 +1,7 @@
-import { AlertOctagon, CreditCard, Info, MapPin, Navigation, TicketPercent } from 'lucide-react';
+import { AlertOctagon, CreditCard, Info, MapPin, Navigation } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import type { PaymentMethod, ServiceType, Voucher } from '../types';
+import type { PaymentMethod, ServiceType } from '../types';
 
 interface OrderFormProps {
   serviceType: ServiceType;
@@ -16,7 +16,6 @@ interface OrderFormProps {
     details: string;
     fee: number;
     paymentMethod: PaymentMethod;
-    voucherCode?: string;
   }) => void;
   submitting?: boolean;
 }
@@ -35,8 +34,6 @@ export default function OrderForm({
   const [details, setDetails] = useState(initialDetails);
   const [fee, setFee] = useState(initialFee);
   const paymentMethod: PaymentMethod = 'COD';
-  const [voucherCode, setVoucherCode] = useState('');
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Sync state when assisted order details update the form.
@@ -46,13 +43,6 @@ export default function OrderForm({
     setDetails(initialDetails);
     setFee(initialFee);
   }, [initialSource, initialDestination, initialDetails, initialFee]);
-
-  useEffect(() => {
-    fetch('/api/vouchers')
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setVouchers(data))
-      .catch(() => setVouchers([]));
-  }, []);
 
   const sourceSuggestions: Record<ServiceType, string[]> = {
     food: ['Kantin Teknik (Saintek) UMP', 'Kantin FEB Kampus 1 UMP', 'Geprek Dekat Kampus', 'Kantin FK UMP'],
@@ -100,8 +90,7 @@ export default function OrderForm({
       deliveryLocation: destination,
       details,
       fee: Number(fee),
-      paymentMethod,
-      voucherCode: voucherCode.trim() || undefined
+      paymentMethod
     });
   };
 
@@ -228,46 +217,14 @@ export default function OrderForm({
         </div>
       </div>
 
-      {/* Payment Method & Voucher */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5 text-left">
-          <label className="text-[11px] sm:text-xs font-bold text-navy-dark uppercase tracking-wider block">
-            Metode Pembayaran
-          </label>
-          <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm font-bold text-slate-700">
-            <CreditCard className="w-4 h-4 text-teal" />
-            <span>COD (Bayar Tunai ke Kurir)</span>
-          </div>
-        </div>
-
-        <div className="space-y-1.5 text-left">
-          <label className="text-[11px] sm:text-xs font-bold text-navy-dark uppercase tracking-wider block">
-            Voucher
-          </label>
-          <div className="relative">
-            <TicketPercent className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              value={voucherCode}
-              onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-              placeholder="Contoh: UMPHEMAT"
-              className="w-full pl-9 sm:pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-teal/20 focus:border-teal outline-none transition-all"
-            />
-          </div>
-          {vouchers.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {vouchers.slice(0, 2).map((voucher) => (
-                <button
-                  type="button"
-                  key={voucher.code}
-                  onClick={() => setVoucherCode(voucher.code)}
-                  className="text-[9px] sm:text-[10px] bg-teal-light/20 hover:bg-teal-light/30 text-teal px-1.5 sm:px-2 py-0.5 rounded transition-colors cursor-pointer font-bold"
-                  title={voucher.description}
-                >
-                  {voucher.code}
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Payment Method */}
+      <div className="space-y-1.5 text-left">
+        <label className="text-[11px] sm:text-xs font-bold text-navy-dark uppercase tracking-wider block">
+          Metode Pembayaran
+        </label>
+        <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm font-bold text-slate-700">
+          <CreditCard className="w-4 h-4 text-teal" />
+          <span>COD (Bayar Tunai ke Kurir)</span>
         </div>
       </div>
 
